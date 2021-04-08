@@ -1,19 +1,42 @@
 import { Request, Response } from "express";
+import { capitalizeName } from "../helpers/utils";
+import {
+  formatFields,
+  SignUpBody,
+  validateEmail,
+  validateRequiredFields,
+  validateSingleName,
+} from "../helpers/validation";
 
-export async function register(req: Request, res: Response) {
+export async function signup(req: Request, res: Response) {
   const { ctx } = req;
-  const { email, password, firstName, lastName } = req.body;
-  const user = await ctx.db.userRepository.save({
+  const requiredFields = ["firstName", "lastName", "password", "email"];
+
+  const formattedFields = formatFields(req.body);
+
+  validateRequiredFields(formattedFields, requiredFields);
+
+  const {
     email,
     password,
     firstName,
     lastName,
+  } = formattedFields as SignUpBody;
+
+  validateEmail(email);
+  validateSingleName(formattedFields, "firstName", "lastName");
+
+  const user = await ctx.db.userRepository.save({
+    email,
+    password,
+    firstName: capitalizeName(firstName),
+    lastName: capitalizeName(lastName),
   });
 
-  res.status(200).send({
+  res.status(201).send({
     status: "success",
     data: {
-      user,
+      id: user.id,
     },
   });
 }
