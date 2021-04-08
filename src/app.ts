@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import { globalErrorHandler } from "./controllers";
 import { authRouter } from "./routes";
 
 class AppController {
@@ -16,6 +17,7 @@ class AppController {
 
   private routes(): void {
     this.app.use("/api/v1/auth", authRouter);
+    this.app.use(globalErrorHandler);
   }
 }
 
