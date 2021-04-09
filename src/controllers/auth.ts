@@ -6,6 +6,7 @@ import {
   formatFields,
   SignUpBody,
   validateEmail,
+  validatePassword,
   validateRequiredFields,
   validateSingleName,
 } from "../helpers/validation";
@@ -27,7 +28,7 @@ export async function signup(req: Request, res: Response) {
 
   validateEmail(email);
   validateSingleName(formattedFields, "firstName", "lastName");
-
+  validatePassword(password);
   await checkForRegisteredUser(ctx, email);
 
   const hashPassword = await bcrypt.hash(password, 12);
@@ -44,4 +45,10 @@ export async function signup(req: Request, res: Response) {
       id: user.id,
     },
   });
+}
+
+export async function login(req: Request, res: Response) {
+  const { ctx } = req;
+  console.log(ctx);
+  return res.send("login");
 }

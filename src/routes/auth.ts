@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup } from "../controllers";
+import { signup, login } from "../controllers";
 import { injectCtx } from "../helpers/inject";
 
 class AuthRouter {
@@ -12,6 +12,7 @@ class AuthRouter {
 
   private registerControllers(): void {
     this.router.post("/signup", injectCtx(signup));
+    this.router.post("/login", injectCtx(login));
   }
 }
 
