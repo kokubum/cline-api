@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AppError } from "src/helpers/appError";
+import { AppError } from "../helpers/appError";
 
 export function globalErrorHandler(
   err: Error,
@@ -15,7 +15,7 @@ export function globalErrorHandler(
       data: err.apiMessage,
     });
   }
-
+  console.error(err);
   return res.status(500).send({
     status: "error",
     message: "Something went wrong",
