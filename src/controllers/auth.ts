@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import * as bcrypt from "bcrypt";
+import { checkForRegisteredUser } from "../helpers/services";
 import { capitalizeName } from "../helpers/utils";
 import {
   formatFields,
@@ -26,9 +28,12 @@ export async function signup(req: Request, res: Response) {
   validateEmail(email);
   validateSingleName(formattedFields, "firstName", "lastName");
 
+  await checkForRegisteredUser(ctx, email);
+
+  const hashPassword = await bcrypt.hash(password, 12);
   const user = await ctx.db.userRepository.save({
     email,
-    password,
+    password: hashPassword,
     firstName: capitalizeName(firstName),
     lastName: capitalizeName(lastName),
   });
