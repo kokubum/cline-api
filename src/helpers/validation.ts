@@ -1,5 +1,6 @@
 import isEmail from "validator/lib/isEmail";
-import { ApiMessage, AppError } from "./appError";
+import { AppError } from "./appError";
+import { buildErrorMessage, isString } from "./utils";
 
 export interface ReqFields {
   [field: string]: any;
@@ -10,17 +11,6 @@ export interface SignUpBody {
   lastName: string;
   password: string;
   email: string;
-}
-
-function isString(field: any): field is String {
-  return Object.prototype.toString.call(field) === "[object String]";
-}
-
-function buildErrorMessage(fields: string[], message: string): ApiMessage {
-  return fields.reduce((accumulator, field) => {
-    accumulator[field] = message;
-    return accumulator;
-  }, {} as ApiMessage);
 }
 
 export function validateSingleName(
@@ -73,7 +63,7 @@ export function formatFields(fields: ReqFields): ReqFields {
   Object.keys(fields).forEach((field) => {
     const fieldValue = fields[field];
     if (isString(fieldValue)) {
-      if (field === "") {
+      if (fieldValue === "") {
         delete formattedFields[field];
       } else {
         formattedFields[field] = fieldValue.trim();
