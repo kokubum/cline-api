@@ -80,3 +80,11 @@ export function validateEmail(email: string): void {
     });
   }
 }
+
+export function validatePassword(password: string): void {
+  if (password.length < 10) {
+    throw new AppError("Invalid password field", 400, {
+      password: "This field must be longer or equal to 10 characters",
+    });
+  }
+}
