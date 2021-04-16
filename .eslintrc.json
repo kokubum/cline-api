@@ -27,7 +27,10 @@
     "@typescript-eslint/explicit-function-return-type": ["error"],
     "max-len": "off",
     "object-curly-newline": "off",
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "class-methods-use-this": "off",
+    "arrow-parens":"off"
+    
   },
   "overrides": [
     {

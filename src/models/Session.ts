@@ -5,27 +5,19 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity({ name: "users" })
-export class User {
+@Entity({ name: "sessions" })
+export class Session {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({
-    unique: true,
-  })
-  email!: string;
+  @Column({ type: "uuid" })
+  userId!: string;
 
-  @Column()
-  firstName!: string;
-
-  @Column()
-  lastName!: string;
-
-  @Column()
-  password!: string;
+  @Column({ type: "text" })
+  token!: string;
 
   @Column({
-    default: false,
+    default: true,
   })
   active!: boolean;
 

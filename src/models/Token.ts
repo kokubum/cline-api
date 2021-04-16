@@ -5,29 +5,19 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity({ name: "users" })
-export class User {
+@Entity({ name: "tokens" })
+export class Token {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({
-    unique: true,
-  })
-  email!: string;
+  @Column({ type: "text" })
+  tokenCode!: string;
 
-  @Column()
-  firstName!: string;
+  @Column({ type: "uuid" })
+  userId!: string;
 
-  @Column()
-  lastName!: string;
-
-  @Column()
-  password!: string;
-
-  @Column({
-    default: false,
-  })
-  active!: boolean;
+  @Column({ type: "timestamp" })
+  expiresAt!: Date;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt!: Date;

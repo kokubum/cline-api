@@ -1,7 +1,7 @@
 // const { pathsToModuleNameMapper } = require("ts-jest");
 // const { compilerOptions } = require("./tsconfig.json");
 
-export default {
+module.exports = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -25,19 +25,13 @@ export default {
 
   // An array of regexp pattern strings used to skip coverage collection
   // coveragePathIgnorePatterns: [
-  coveragePathIgnorePatterns: [
-    "ormconfig.js",
-    "/tests/",
-    "/node_modules/",
-    "/src/migrations/",
-    "/src/models/",
-  ],
+  coveragePathIgnorePatterns: ["ormconfig.js", "/tests/", "/node_modules/", "/src/migrations/", "/src/models/"],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
 
   // A list of reporter names that Jest uses when writing coverage reports
-  coverageReporters: ["json", "text"],
+  coverageReporters: ["json-summary", "lcov", "text"],
 
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {

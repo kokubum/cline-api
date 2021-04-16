@@ -2,6 +2,8 @@ import { randomBytes } from "crypto";
 import { Connection, createConnection, getConnectionOptions } from "typeorm";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
+process.env.TZ = "UTC";
+
 const testDatabase = `test_${randomBytes(10).toString("hex")}`;
 let masterConn: Connection;
 let testConn: Connection;

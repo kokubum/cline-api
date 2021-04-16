@@ -7,9 +7,17 @@ export class AppError extends Error {
 
   public readonly status: string;
 
-  public readonly isOperational: boolean;
-
   public readonly apiMessage: ApiMessage | null;
+
+  public static buildErrorMessage(
+    fields: string[],
+    message: string
+  ): ApiMessage {
+    return fields.reduce((accumulator, field) => {
+      accumulator[field] = message;
+      return accumulator;
+    }, {} as ApiMessage);
+  }
 
   constructor(
     generalMessage: string,
@@ -19,7 +27,6 @@ export class AppError extends Error {
     super(generalMessage);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
-    this.isOperational = true;
     this.apiMessage = apiMessage || null;
   }
 }

@@ -2,6 +2,7 @@ import { createConnection, getConnectionOptions } from "typeorm";
 import "reflect-metadata";
 import app from "./app";
 
+process.env.TZ = "UTC";
 const port = parseInt(process.env.PORT ?? "8000", 10);
 
 getConnectionOptions().then(async (options) =>
