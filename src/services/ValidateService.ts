@@ -37,7 +37,7 @@ export class ValidateService {
   }
 
   requiredFields<T>(fieldsObj: ReqFields, requiredFields: string[]): T {
-    const formattedFields = formatFields(fieldsObj);
+    const formattedFields = formatFields(fieldsObj, requiredFields);
     if (!hasSameFields<T>(formattedFields, requiredFields)) {
       const missingFields = getMissingFields(formattedFields, requiredFields);
 

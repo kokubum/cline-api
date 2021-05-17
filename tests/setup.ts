@@ -8,6 +8,11 @@ const testDatabase = `test_${randomBytes(10).toString("hex")}`;
 let masterConn: Connection;
 let testConn: Connection;
 
+jest.mock("@sendgrid/mail", () => ({
+  setApiKey: jest.fn(),
+  send: jest.fn().mockResolvedValue(""),
+}));
+
 beforeAll(async () => {
   try {
     masterConn = await createConnection({
@@ -20,14 +25,15 @@ beforeAll(async () => {
     testConn = await createConnection({
       ...((await getConnectionOptions()) as PostgresConnectionOptions),
       database: testDatabase,
-      logging: false,
       migrationsRun: true,
+      logging: false,
     });
   } catch (error) {
-    console.error(`Setup Error: ${error}`);
+    process.stderr.write(`${error}\n${error.stack || ""}\n`);
+
     process.exit(1);
   }
-});
+}, 60000);
 
 afterAll(async () => {
   await testConn.close();

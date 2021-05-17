@@ -8,7 +8,6 @@ export function globalErrorHandler(
   // eslint-disable-next-line no-unused-vars
   _next: NextFunction,
 ) {
-  console.error(err);
   if (err instanceof AppError) {
     return res.status(err.statusCode).send({
       status: err.status,

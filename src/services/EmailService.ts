@@ -1,6 +1,6 @@
 import sgMail, { MailDataRequired } from "@sendgrid/mail";
 
-import { env, sendGridApiKey, supportEmail, urlActivateAccount, urlRecoverPassword } from "../config";
+import { sendGridApiKey, supportEmail, urlActivateAccount, urlRecoverPassword } from "../config";
 
 export type EmailType = "recovery" | "activation";
 
@@ -19,13 +19,12 @@ export class EmailService {
       from: supportEmail,
       subject: "Confirmação da Conta Solved",
       html: `<p>Ola ${userName}</p>: <a clicktracking="off"  href=${link}>Clique Aqui</>`,
-      mailSettings: {
-        sandboxMode: {
-          enable: env === "test",
-        },
-      },
     };
 
-    sgMail.send(message).catch(error => console.error(error));
+    try {
+      await sgMail.send(message);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }

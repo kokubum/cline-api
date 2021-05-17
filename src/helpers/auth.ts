@@ -1,10 +1,16 @@
 import { randomBytes, randomInt } from "crypto";
-import { addMinutes } from "date-fns";
+import { addDays, addMinutes } from "date-fns";
 import * as bcrypt from "bcrypt";
-import * as jwt from "jsonwebtoken";
-import { linkExpirationTime, secretKey } from "../config";
+import jwt from "jsonwebtoken";
+import { expiresDays, jwtExpirationTime, linkExpirationTime, secretKey } from "../config";
 import { AppError } from "./appError";
 import { Token } from "../models";
+
+export interface DecodedJWT {
+  id: string;
+  iat: number;
+  exp: number;
+}
 
 export function generateRandomCode(): string {
   return randomInt(0, 999999).toString().padStart(6, "0");
@@ -14,8 +20,8 @@ export function generateTokenCode(): string {
   return randomBytes(32).toString("hex");
 }
 
-export function generateExpireTime(): Date {
-  return addMinutes(new Date(), linkExpirationTime);
+export function generateLinkExpireTime(): Date {
+  return addMinutes(new Date(Date.now()), linkExpirationTime);
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -24,8 +30,12 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function generateJwt(sessionId: string): Promise<string> {
   return jwt.sign({ id: sessionId }, secretKey, {
-    expiresIn: "1d",
+    expiresIn: jwtExpirationTime,
   });
+}
+
+export function generateSessionExpireTime(): Date {
+  return addDays(new Date(Date.now()), expiresDays);
 }
 
 export function checkTokenExpiration(token: Token): void {

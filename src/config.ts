@@ -3,7 +3,8 @@ export const sendGridApiKey = process.env.SENDGRID_API_KEY!;
 export const supportEmail = process.env.SUPPORT_EMAIL!;
 export const linkExpirationTime = 15;
 
-export const jwtExpirationTime = process.env.JWT_EXPIRATION_TIME ?? "1d";
+export const expiresDays = parseInt(process.env.JWT_EXPIRATION_TIME ?? "1", 10);
+export const jwtExpirationTime = `${expiresDays}d`;
 export const env = process.env.NODE_ENV!;
 
 export const urlActivateAccount = process.env.URL_ACTIVATE_ACCOUNT!;

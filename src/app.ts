@@ -1,5 +1,6 @@
 import express, { Express } from "express";
 import { globalErrorHandler, notFoundUrlHandler } from "./controllers";
+import { injectCtx } from "./middlewares/context";
 import { authRouter } from "./routes";
 
 class AppController {
@@ -13,6 +14,7 @@ class AppController {
 
   private middlewares(): void {
     this.app.use(express.json());
+    this.app.use(injectCtx);
   }
 
   private routes(): void {

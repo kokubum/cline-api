@@ -1,31 +1,31 @@
 import request from "supertest";
-import "../setup";
 import { validate as uuidValidate } from "uuid";
 import { addDays } from "date-fns";
 import * as faker from "faker";
 import { clearTablesContent } from "../helper";
 import app from "../../src/app";
-import { generateSignUpBody } from "../__mocks__/auth";
-import { buildContext, Context } from "../../src/helpers/inject";
+import { generateLoginBody, generateSignUpBody } from "../__mocks__/auth";
+import { Context, RequestContext } from "../../src/helpers/requestContext";
 
 let signUpUrl: string;
 let loginUrl: string;
 let activateUrl: string;
 let sendActivateUrl: string;
+let sendRecoverUrl: string;
+let recoverUrl: string;
+let logoutUrl: string;
 let ctx: Context;
-
-jest.mock("@sendgrid/mail", () => ({
-  setApiKey: jest.fn(),
-  send: jest.fn().mockResolvedValue(""),
-}));
 
 describe("Authentication", () => {
   beforeAll(() => {
-    ctx = buildContext();
+    ctx = RequestContext.buildContext();
     signUpUrl = "/api/v1/auth/signup";
     loginUrl = "/api/v1/auth/login";
     activateUrl = "/api/v1/auth/activate-account";
     sendActivateUrl = "/api/v1/auth/send-activation";
+    sendRecoverUrl = "/api/v1/auth/send-recovery";
+    recoverUrl = "/api/v1/auth/recover-password";
+    logoutUrl = "/api/v1/auth/logout";
   });
 
   describe("Sign Up", () => {
@@ -57,28 +57,6 @@ describe("Authentication", () => {
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
       expect(body.data.firstName).toBe("This field is required");
-    });
-
-    it("Should throw an error if try to sent more than one word in the name field (firstName or lastName)", async () => {
-      const { status, body } = await request(app)
-        .post(signUpUrl)
-        .send(generateSignUpBody({ lastName: "first second" }));
-
-      expect(status).toBe(400);
-      expect(body.status).toBe("fail");
-      expect(body.message).toBe("Some misformatted fields");
-      expect(body.data.lastName).toBe("This field need to have only a single word");
-    });
-
-    it("Should throw an error if try to send an invalid email", async () => {
-      const { status, body } = await request(app)
-        .post(signUpUrl)
-        .send(generateSignUpBody({ email: "misformatted email" }));
-
-      expect(status).toBe(400);
-      expect(body.status).toBe("fail");
-      expect(body.message).toBe("Invalid email field");
-      expect(body.data.email).toBe("This field have an invalid format");
     });
 
     it("Should throw an error if try to signup an existing user", async () => {
@@ -155,10 +133,7 @@ describe("Authentication", () => {
     });
 
     it("Should throw an error if the email or the password are invalid", async () => {
-      const { status, body } = await request(app).post(loginUrl).send({
-        email: "random_not_registered@email.com",
-        password: "random_email",
-      });
+      const { status, body } = await request(app).post(loginUrl).send(generateLoginBody({}));
 
       expect(status).toBe(401);
       expect(body.status).toBe("fail");
@@ -203,11 +178,11 @@ describe("Authentication", () => {
     });
 
     it("Should throw an error if the activation token are expired", async () => {
+      await request(app).post(signUpUrl).send(generateSignUpBody({}));
+
       const newDateMiliseconds = addDays(new Date(), 1).getTime();
       const nowRef = Date.now;
       Date.now = (): number => newDateMiliseconds;
-
-      await request(app).post(signUpUrl).send(generateSignUpBody({}));
 
       const token = await ctx.db.tokenRepository.findOne();
 
@@ -238,7 +213,7 @@ describe("Authentication", () => {
     });
   });
 
-  describe.only("Send Activation Link", () => {
+  describe("Send Activation Link", () => {
     beforeEach(async () => {
       await clearTablesContent();
     });
@@ -258,6 +233,153 @@ describe("Authentication", () => {
       expect(status).toBe(404);
       expect(body.status).toBe("fail");
       expect(body.message).toBe("This email is not registered");
+    });
+
+    it("Should thrown an error if the user is activated already", async () => {
+      const email = "random@email.com";
+      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      const token = await ctx.db.tokenRepository.findOne();
+      await request(app).get(`${activateUrl}/${token?.tokenCode}`);
+
+      const { body, status } = await request(app).post(sendActivateUrl).send({ email });
+
+      expect(status).toBe(400);
+      expect(body.status).toBe("fail");
+      expect(body.message).toBe("This email is already active");
+    });
+  });
+
+  describe("Send Recover Link", () => {
+    beforeEach(async () => {
+      await clearTablesContent();
+    });
+
+    it("Should send a recovery link if the email is registered and the user is activated", async () => {
+      const email = "random@email.com";
+      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      const token = await ctx.db.tokenRepository.findOne();
+
+      await request(app).get(`${activateUrl}/${token?.tokenCode}`);
+      const { status, body } = await request(app).post(sendRecoverUrl).send({ email });
+
+      expect(status).toBe(200);
+      expect(body.status).toBe("success");
+    });
+
+    it("Should return success if the user is not registered or not activated", async () => {
+      const { status, body } = await request(app).post(sendRecoverUrl).send({ email: "random@email.com" });
+
+      expect(status).toBe(200);
+      expect(body.status).toBe("success");
+    });
+  });
+
+  describe("Verify Recover Link", () => {
+    const email = "random@email.com";
+    beforeEach(async () => {
+      await clearTablesContent();
+      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      const activationToken = await ctx.db.tokenRepository.findOne();
+
+      await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);
+    });
+
+    it("Should validate the recovery link that was sent", async () => {
+      await request(app).post(sendRecoverUrl).send({ email });
+      const recoverToken = await ctx.db.tokenRepository.findOne();
+      const { status, body } = await request(app).get(`${recoverUrl}/${recoverToken?.tokenCode}`);
+
+      expect(status).toBe(200);
+      expect(body.status).toBe("success");
+    });
+
+    it("Should throw an error if the token is expired", async () => {
+      await request(app).post(sendRecoverUrl).send({ email });
+      const recoverToken = await ctx.db.tokenRepository.findOne();
+
+      const newDateMiliseconds = addDays(new Date(), 1).getTime();
+      const nowRef = Date.now;
+      Date.now = (): number => newDateMiliseconds;
+
+      const { status, body } = await request(app).get(`${recoverUrl}/${recoverToken?.tokenCode}`);
+      Date.now = nowRef;
+
+      expect(status).toBe(401);
+      expect(body.status).toBe("fail");
+      expect(body.message).toBe("Token has expired");
+    });
+
+    it("Should throw an error if the user no longer exists", async () => {
+      await request(app).post(sendRecoverUrl).send({ email });
+      const recoverToken = await ctx.db.tokenRepository.findOne();
+      await ctx.db.userRepository.delete({});
+      const { status, body } = await request(app).get(`${recoverUrl}/${recoverToken?.tokenCode}`);
+      expect(status).toBe(404);
+      expect(body.status).toBe("fail");
+      expect(body.message).toBe("This user no longer exists");
+    });
+  });
+
+  describe("Recover Password", () => {
+    const email = "random@email.com";
+    beforeEach(async () => {
+      await clearTablesContent();
+      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      const activationToken = await ctx.db.tokenRepository.findOne();
+
+      await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);
+    });
+
+    it("Should update the password if valid credentials and token are passed", async () => {
+      await request(app).post(sendRecoverUrl).send({ email });
+      const recoverToken = await ctx.db.tokenRepository.findOne();
+
+      const { status, body } = await request(app)
+        .post(`${recoverUrl}/${recoverToken?.tokenCode}`)
+        .send({ password: "random_password", confirmPassword: "random_password" });
+
+      expect(status).toBe(200);
+      expect(body.status).toBe("success");
+    });
+
+    it("Should throw an error if the password and confirmPassword doesn't match", async () => {
+      await request(app).post(sendRecoverUrl).send({ email });
+      const recoverToken = await ctx.db.tokenRepository.findOne();
+
+      const { status, body } = await request(app)
+        .post(`${recoverUrl}/${recoverToken?.tokenCode}`)
+        .send({ password: "random_password", confirmPassword: "random_password_mismatch" });
+
+      expect(status).toBe(400);
+      expect(body.status).toBe("fail");
+      expect(body.message).toBe("The password doesn't match");
+    });
+  });
+
+  describe("Logout User", () => {
+    let token: string;
+
+    beforeEach(async () => {
+      await clearTablesContent();
+      const signUpBody = generateSignUpBody({});
+      await request(app).post(signUpUrl).send(generateSignUpBody(signUpBody));
+      const activationToken = await ctx.db.tokenRepository.findOne();
+
+      await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);
+
+      const { body } = await request(app)
+        .post(loginUrl)
+        .send({ email: signUpBody.email, password: signUpBody.password });
+
+      token = body.data.token;
+    });
+
+    it("Should logout an user that is logged in", async () => {
+      const { body, status } = await request(app).get(logoutUrl).set("Authorization", `Bearer ${token}`);
+
+      expect(status).toBe(200);
+      expect(body.status).toBe("success");
+      expect(body.data).toBeNull();
     });
   });
 });

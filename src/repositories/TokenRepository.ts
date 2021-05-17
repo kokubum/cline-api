@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from "typeorm";
 import { AppError } from "../helpers/appError";
-import { generateExpireTime, generateTokenCode } from "../helpers/auth";
+import { generateLinkExpireTime, generateTokenCode } from "../helpers/auth";
 import { Token } from "../models";
 
 @EntityRepository(Token)
@@ -11,7 +11,7 @@ export class TokenRepository extends Repository<Token> {
     return this.save({
       tokenCode,
       userId,
-      expiresAt: generateExpireTime(),
+      expiresAt: generateLinkExpireTime(),
     });
   }
 

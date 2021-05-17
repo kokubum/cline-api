@@ -1,15 +1,15 @@
 import { EntityRepository, Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { AppError } from "../helpers/appError";
-import { Token, User } from "../models";
+import { User } from "../models";
 import { SignUpBody } from "../@types/auth.types";
 import { capitalizeName } from "../helpers/utils";
 import { hashPassword } from "../helpers/auth";
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async findUserByToken(token: Token): Promise<User> {
-    const user = await this.findOne(token.userId);
+  async findById(id: string): Promise<User> {
+    const user = await this.findOne(id);
 
     if (!user) {
       throw new AppError("This user no longer exists", 404);

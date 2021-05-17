@@ -7,8 +7,10 @@ import {
   sendRecoverPasswordLink,
   verifyRecoverPasswordLink,
   recoverPassword,
+  logout,
 } from "../controllers";
-import { injectCtx } from "../helpers/inject";
+import { catchAsync } from "../helpers/catchAsync";
+import { protect } from "../middlewares/auth";
 
 class AuthRouter {
   router: Router;
@@ -19,13 +21,14 @@ class AuthRouter {
   }
 
   private registerControllers(): void {
-    this.router.post("/signup", injectCtx(signup));
-    this.router.post("/login", injectCtx(login));
-    this.router.get("/activate-account/:token", injectCtx(activateAccount));
-    this.router.post("/send-activation", injectCtx(sendActivationLink));
-    this.router.post("/send-recovery", injectCtx(sendRecoverPasswordLink));
-    this.router.get("/recover-password/:token", injectCtx(verifyRecoverPasswordLink));
-    this.router.post("/recover-password/:token", injectCtx(recoverPassword));
+    this.router.post("/signup", catchAsync(signup));
+    this.router.post("/login", catchAsync(login));
+    this.router.get("/activate-account/:token", catchAsync(activateAccount));
+    this.router.post("/send-activation", catchAsync(sendActivationLink));
+    this.router.post("/send-recovery", catchAsync(sendRecoverPasswordLink));
+    this.router.get("/recover-password/:token", catchAsync(verifyRecoverPasswordLink));
+    this.router.post("/recover-password/:token", catchAsync(recoverPassword));
+    this.router.get("/logout", catchAsync(protect), catchAsync(logout));
   }
 }
 

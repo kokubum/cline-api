@@ -1,5 +1,7 @@
 import * as faker from "faker";
-import { SignUpBody } from "../../src/@types/auth.types";
+import { LoginBody, SignUpBody } from "../../src/@types/auth.types";
+import { generateLinkExpireTime } from "../../src/helpers/auth";
+import { Token } from "../../src/models";
 
 export function generateSignUpBody({
   firstName = faker.name.firstName(),
@@ -15,5 +17,26 @@ export function generateSignUpBody({
     password,
     confirmPassword,
     email,
+  };
+}
+
+export function generateLoginBody({
+  email = faker.internet.email(),
+  password = faker.internet.password(10),
+}): LoginBody {
+  return {
+    email,
+    password,
+  };
+}
+
+export function generateTokenModel(tokenCode: string, expirationDate?: Date): Token {
+  return {
+    id: faker.datatype.uuid(),
+    tokenCode,
+    userId: faker.datatype.uuid(),
+    expiresAt: expirationDate ?? generateLinkExpireTime(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 }

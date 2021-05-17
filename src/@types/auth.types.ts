@@ -1,3 +1,5 @@
+import { User } from "../models";
+
 export interface ReqFields {
   [field: string]: any;
 }
@@ -22,4 +24,9 @@ export interface SignUpBody {
   password: string;
   confirmPassword: string;
   email: string;
+}
+
+export interface SessionInfo {
+  sessionId: string;
+  user: User;
 }
