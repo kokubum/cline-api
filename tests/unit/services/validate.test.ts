@@ -1,6 +1,6 @@
 import { SignUpBody } from "../../../src/@types/auth.types";
 import { ValidateService } from "../../../src/services";
-import { generateSignUpBody } from "../../__mocks__/auth";
+import { generateLoginBody, generateSignUpBody } from "../../__mocks__/auth";
 
 let validateService: ValidateService;
 
@@ -126,6 +126,65 @@ describe("Validate Service", () => {
       expect(validBody.confirmPassword).toBeTruthy();
       expect(validBody.firstName).toBeTruthy();
       expect(validBody.lastName).toBeTruthy();
+    });
+  });
+
+  describe("Has Same Fields", () => {
+    it("Should return true if the object has the exact same required fields", () => {
+      expect(validateService.hasSameFields(generateLoginBody({}), ["email", "password"])).toBeTruthy();
+    });
+
+    it("Should return false if the object has the exact same length but not the exact same fields", () => {
+      expect(validateService.hasSameFields(generateLoginBody({}), ["field_one", "field_two"])).toBeFalsy();
+    });
+
+    it("Should return false if the object has the exact same fields but not the exact same length", () => {
+      expect(validateService.hasSameFields(generateLoginBody({}), ["email"])).toBeFalsy();
+    });
+  });
+
+  describe("Get Missing Fields", () => {
+    it("Should return an array of missing fields", () => {
+      const missingFields = validateService.getMissingFields(generateLoginBody({}), ["email", "password", "plus_field"]);
+
+      expect(missingFields.length).toBe(1);
+      expect(missingFields[0]).toBe("plus_field");
+    });
+
+    it("Should return an empty array if the body has more or equal fields than the required array", () => {
+      const missingFields = validateService.getMissingFields(generateLoginBody({}), ["email"]);
+
+      expect(missingFields.length).toBe(0);
+    });
+  });
+
+  describe("Format Fields", () => {
+    it("Should return a formatted object with no extra fields", () => {
+      const body = generateLoginBody({ email: "    random@email.com   ", password: "  random_password" });
+
+      const formattedBody = validateService.formatFields(body, ["email", "password"]);
+
+      expect(formattedBody.email).toBe("random@email.com");
+      expect(formattedBody.password).toBe("random_password");
+    });
+
+    it("Should remove the extra fields", () => {
+      const body = generateSignUpBody({});
+
+      const formattedBody = validateService.formatFields(body, ["email"]);
+
+      const bodyArr = Object.keys(formattedBody);
+
+      expect(bodyArr.length).toBe(1);
+      expect(bodyArr[0]).toBe("email");
+    });
+
+    it("Should remove all the empty strings", () => {
+      const body = generateLoginBody({ email: "" });
+      const formattedBody = validateService.formatFields(body, ["email", "password"]);
+      const bodyArr = Object.keys(formattedBody);
+      expect(bodyArr.length).toBe(1);
+      expect(bodyArr[0]).toBe("password");
     });
   });
 });

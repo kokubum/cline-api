@@ -20,7 +20,16 @@ export interface Context {
 }
 
 export class RequestContext {
-  public static buildContext(): Context {
+  private static instance:Context;
+
+  public static getInstance():Context {
+    if (!RequestContext.instance) {
+      RequestContext.instance = RequestContext.buildContext();
+    }
+    return RequestContext.instance;
+  }
+
+  private static buildContext(): Context {
     const connection = getConnection();
     return {
       db: {
