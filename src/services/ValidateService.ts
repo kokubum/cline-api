@@ -67,8 +67,10 @@ export class ValidateService {
         delete formattedFields[field];
       } else {
         const fieldValue = fields[field];
-        formattedFields[field] = fieldValue.trim();
-        if (isString(fieldValue) && fieldValue === "") delete formattedFields[field];
+        if (isString(fieldValue)) {
+          formattedFields[field] = fieldValue.trim();
+          if (fieldValue === "") delete formattedFields[field];
+        }
       }
     });
     return formattedFields;
