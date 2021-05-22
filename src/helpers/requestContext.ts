@@ -1,6 +1,7 @@
 import { Connection, getConnection } from "typeorm";
 import { SessionInfo } from "../@types/auth.types";
 import { UserRepository } from "../repositories";
+import { ClinicRepository } from "../repositories/ClinicRepository";
 import { SessionRepository } from "../repositories/SessionRepository";
 import { TokenRepository } from "../repositories/TokenRepository";
 import { EmailService, ValidateService } from "../services";
@@ -11,6 +12,7 @@ export interface Context {
     userRepository: UserRepository;
     sessionRepository: SessionRepository;
     tokenRepository: TokenRepository;
+    clinicRepository: ClinicRepository;
   };
   services: {
     emailService: EmailService;
@@ -37,6 +39,7 @@ export class RequestContext {
         userRepository: connection.getCustomRepository(UserRepository),
         sessionRepository: connection.getCustomRepository(SessionRepository),
         tokenRepository: connection.getCustomRepository(TokenRepository),
+        clinicRepository: connection.getCustomRepository(ClinicRepository),
       },
       services: {
         emailService: new EmailService(),
