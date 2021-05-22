@@ -16,6 +16,11 @@ export class Clinic {
   })
   phone!:string;
 
+  @Column({
+    unique: true
+  })
+  address!:string;
+
   @ManyToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.clinic)
   clinicDoctors!:ClinicDoctor[];
 
