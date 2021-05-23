@@ -54,9 +54,6 @@ export class seed1621698056831 implements MigrationInterface {
         }
 
         
-
-        var allClinics = await RequestContext.getInstance().db.clinicRepository.getAll()
-        console.log(allClinics)
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
