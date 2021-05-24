@@ -1,6 +1,10 @@
 import { Connection, getConnection } from "typeorm";
 import { SessionInfo } from "../@types/auth.types";
 import { UserRepository, ClinicRepository, DoctorRepository, LineRepository, SessionRepository, TokenRepository } from "../repositories";
+import { AttendingDayRepository } from "../repositories/health/AttendingDayRepository";
+import { ClinicDoctorRepository } from "../repositories/health/ClinicDoctorRepository";
+import { LinePatientRepository } from "../repositories/health/LinePatientRepository";
+import { PatientRepository } from "../repositories/health/PatientRepository";
 import { EmailService, ValidateService } from "../services";
 
 export interface Context {
@@ -12,6 +16,10 @@ export interface Context {
     clinicRepository: ClinicRepository;
     doctorRepository: DoctorRepository;
     lineRepository: LineRepository;
+    patientRepository: PatientRepository;
+    linePatientRepository: LinePatientRepository;
+    clinicDoctorRepository: ClinicDoctorRepository;
+    attendingDayRepository: AttendingDayRepository;
   };
   services: {
     emailService: EmailService;
@@ -41,6 +49,11 @@ export class RequestContext {
         clinicRepository: connection.getCustomRepository(ClinicRepository),
         doctorRepository: connection.getCustomRepository(DoctorRepository),
         lineRepository: connection.getCustomRepository(LineRepository),
+        patientRepository: connection.getCustomRepository(PatientRepository),
+        clinicDoctorRepository: connection.getCustomRepository(ClinicDoctorRepository),
+        linePatientRepository: connection.getCustomRepository(LinePatientRepository),
+        attendingDayRepository: connection.getCustomRepository(AttendingDayRepository)
+
       },
       services: {
         emailService: new EmailService(),

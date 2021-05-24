@@ -1,4 +1,4 @@
-export * from "./AttendingDays";
+export * from "./AttendingDay";
 export * from "./Clinic";
 export * from "./ClinicDoctor";
 export * from "./Doctor";
