@@ -1,11 +1,6 @@
 import { Connection, getConnection } from "typeorm";
 import { SessionInfo } from "../@types/auth.types";
-import { UserRepository } from "../repositories";
-import { ClinicRepository } from "../repositories/ClinicRepository";
-import { DoctorRepository } from "../repositories/DoctorRepository";
-import { LineRepository } from "../repositories/LineRepository";
-import { SessionRepository } from "../repositories/SessionRepository";
-import { TokenRepository } from "../repositories/TokenRepository";
+import { UserRepository, ClinicRepository, DoctorRepository, LineRepository, SessionRepository, TokenRepository } from "../repositories";
 import { EmailService, ValidateService } from "../services";
 
 export interface Context {

@@ -1,10 +1,10 @@
 import { EntityRepository, Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
-import { AppError } from "../helpers/appError";
-import { User } from "../models";
-import { SignUpBody } from "../@types/auth.types";
-import { capitalizeName } from "../helpers/utils";
-import { hashPassword } from "../helpers/auth";
+import { AppError } from "../../helpers/appError";
+import { User } from "../../models";
+import { SignUpBody } from "../../@types/auth.types";
+import { capitalizeName } from "../../helpers/utils";
+import { hashPassword } from "../../helpers/auth";
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {

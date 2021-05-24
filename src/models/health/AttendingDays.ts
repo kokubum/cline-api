@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ClinicDoctor, WeekDay } from ".";
 
 @Entity({ name: "attending_days" })
@@ -15,8 +15,7 @@ export class AttendingDay {
   @Column()
   onDuty!:boolean;
 
-  @OneToOne(() => WeekDay)
-  @JoinColumn()
+  @ManyToOne(() => WeekDay)
   weekDay!:WeekDay;
 
   @ManyToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.attendingDays)
