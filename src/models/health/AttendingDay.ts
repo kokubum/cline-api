@@ -18,6 +18,8 @@ export class AttendingDay {
   @ManyToOne(() => WeekDay)
   weekDay!:WeekDay;
 
-  @ManyToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.attendingDays)
+  @ManyToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.attendingDays, {
+    onDelete: "CASCADE"
+  })
   clinicDoctor!:ClinicDoctor;
 }

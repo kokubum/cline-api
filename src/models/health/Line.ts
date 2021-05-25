@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { LinePatient } from ".";
+import { ClinicDoctor } from "./ClinicDoctor";
 
 @Entity({ name: "lines" })
 export class Line {
@@ -13,6 +14,10 @@ export class Line {
 
   @OneToMany(() => LinePatient, linePatient => linePatient.line)
   linePatients!:LinePatient[];
+
+  @OneToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.line, { onDelete: "CASCADE" })
+  @JoinColumn()
+  clinicDoctor!:ClinicDoctor;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt!: Date;

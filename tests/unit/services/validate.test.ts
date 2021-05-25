@@ -1,3 +1,4 @@
+import { v1 as uuidV1 } from "uuid";
 import { SignUpBody } from "../../../src/@types/auth.types";
 import { ValidateService } from "../../../src/services";
 import { generateLoginBody, generateSignUpBody } from "../../__mocks__/auth";
@@ -31,7 +32,7 @@ describe("Validate Service", () => {
       expect(validBody.password).toBe(password);
     });
 
-    it("Should trim the fields and return the object if all required fields are passed", () => {
+    it("Should return the object if all required fields are passed", () => {
       const email = "     random@email.com  ";
       const password = "  random_password  ";
       const requiredFields = ["email", "password"];
@@ -43,8 +44,8 @@ describe("Validate Service", () => {
         requiredFields,
       );
 
-      expect(validBody.email).toBe(email.trim());
-      expect(validBody.password).toBe(password.trim());
+      expect(validBody.email).toBe(email);
+      expect(validBody.password).toBe(password);
     });
 
     it("Should throw an error if the request object miss some fied", () => {
@@ -108,6 +109,10 @@ describe("Validate Service", () => {
     it("Should run all format functions in the passed request body", () => {
       expect(() => validateService.fieldsFormat(generateSignUpBody({}))).not.toThrow();
     });
+
+    it("Should not throw an error if the field isn't in the validate factory", () => {
+      expect(() => validateService.fieldsFormat({ randomField: "random_string" })).not.toThrow();
+    });
   });
 
   describe("Request Body", () => {
@@ -138,8 +143,8 @@ describe("Validate Service", () => {
       expect(validateService.hasSameFields(generateLoginBody({}), ["field_one", "field_two"])).toBeFalsy();
     });
 
-    it("Should return false if the object has the exact same fields but not the exact same length", () => {
-      expect(validateService.hasSameFields(generateLoginBody({}), ["email"])).toBeFalsy();
+    it("Should return true if the object has at least the required fields", () => {
+      expect(validateService.hasSameFields(generateLoginBody({}), ["email"])).toBeTruthy();
     });
   });
 
@@ -159,32 +164,47 @@ describe("Validate Service", () => {
   });
 
   describe("Format Fields", () => {
-    it("Should return a formatted object with no extra fields", () => {
+    it("Should return a formatted trim object", () => {
       const body = generateLoginBody({ email: "    random@email.com   ", password: "  random_password" });
 
-      const formattedBody = validateService.formatFields(body, ["email", "password"]);
+      const formattedBody = validateService.formatFields(body);
 
       expect(formattedBody.email).toBe("random@email.com");
       expect(formattedBody.password).toBe("random_password");
     });
 
-    it("Should remove the extra fields", () => {
-      const body = generateSignUpBody({});
+    it("Should ignore the value if it's not a string", () => {
+      const formattedBody = validateService.formatFields({ randomField: 123 });
 
-      const formattedBody = validateService.formatFields(body, ["email"]);
+      expect(formattedBody.randomField).toBe(123);
+    });
+  });
 
-      const bodyArr = Object.keys(formattedBody);
-
-      expect(bodyArr.length).toBe(1);
-      expect(bodyArr[0]).toBe("email");
+  describe("Type Check", () => {
+    it("Should not throw and error if the field has the correct type", () => {
+      expect(() => validateService.typeCheck({ email: "string_type" })).not.toThrow();
     });
 
-    it("Should remove all the empty strings", () => {
-      const body = generateLoginBody({ email: "" });
-      const formattedBody = validateService.formatFields(body, ["email", "password"]);
-      const bodyArr = Object.keys(formattedBody);
-      expect(bodyArr.length).toBe(1);
-      expect(bodyArr[0]).toBe("password");
+    it("Should not throw an error if the field doesn't have a specified type", () => {
+      expect(() => validateService.typeCheck({ randomType: true })).not.toThrow();
+    });
+
+    it("Should throw an error if try to send a normal string in a uuid field", () => {
+      expect(() => validateService.typeCheck({ id: "normal_string" })).toThrow(
+        "Fields with invalid type",
+      );
+    });
+
+    it("Should throw an error if try to send one uuid that is not from version 4 in the uuid field", () => {
+      expect(() => validateService.typeCheck({ id: uuidV1() })).toThrow(
+        "Fields with invalid type",
+      );
+    });
+
+    it("Should throw an error if the field has a wrong type", () => {
+      expect(() => validateService.typeCheck({ email: 123 })).toThrow(
+        "Fields with invalid type",
+      );
     });
   });
 });

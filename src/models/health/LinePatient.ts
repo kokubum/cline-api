@@ -30,10 +30,14 @@ export class LinePatient {
   })
   status!:Status;
 
-  @ManyToOne(() => Line, line => line.linePatients)
+  @ManyToOne(() => Line, line => line.linePatients, {
+    onDelete: "CASCADE"
+  })
   line!:Line;
 
-  @ManyToOne(() => Patient)
+  @ManyToOne(() => Patient, {
+    onDelete: "CASCADE"
+  })
   patient!:Patient
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

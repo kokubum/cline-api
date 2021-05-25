@@ -13,7 +13,7 @@ let loginUrl: string;
 
 describe("Middlewares", () => {
   beforeAll(() => {
-    ctx = RequestContext.buildContext();
+    ctx = RequestContext.getInstance();
     logoutUrl = "/api/v1/auth/logout";
     signUpUrl = "/api/v1/auth/signup";
     activateUrl = "/api/v1/auth/activate-account";

@@ -1,7 +1,6 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
-import { RequestContext } from "../helpers/requestContext";
+import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class seed1621698056831 implements MigrationInterface {
+export class clinicsAndDoctorPopulate1621891432574 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         // Clinic seed
@@ -48,18 +47,12 @@ export class seed1621698056831 implements MigrationInterface {
         await queryRunner.query(`INSERT INTO doctors (id, name, document, crm, email) VALUES (uuid_generate_v4(), 'Luís Dias Goncalves', '13861821095', '5242-BA', 'luisdiasgoncalves@gmail.com')`);
         await queryRunner.query(`INSERT INTO doctors (id, name, document, crm, email) VALUES (uuid_generate_v4(), 'Danilo Lima Pinto', '81733616063', '23095-BA', 'danilolimapinto@gmail.com')`);
     
-        // Line seed
-        for (var i = 0; i < 30; i++) {
-            await queryRunner.query(`INSERT INTO lines (id, active) VALUES (uuid_generate_v4(), false)`);
-        }
-
         
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`DELETE FROM clinics`);
         await queryRunner.query(`DELETE FROM doctors`);
-        await queryRunner.query(`DELETE FROM lines`);
+       
     }
-
 }

@@ -13,6 +13,7 @@ export async function signup(req: Request, res: Response) {
   ctx.services.validateService.confirmPasswordEquality(validBody.confirmPassword, validBody.password);
 
   await ctx.db.userRepository.checkForRegisteredUser(validBody.email);
+
   const user = await ctx.db.userRepository.registerUser(validBody);
 
   const token = await ctx.db.tokenRepository.saveToken(user.id);
