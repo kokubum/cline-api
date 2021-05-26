@@ -5,7 +5,7 @@ import { AttendingDayRepository } from "../repositories/health/AttendingDayRepos
 import { ClinicDoctorRepository } from "../repositories/health/ClinicDoctorRepository";
 import { LinePatientRepository } from "../repositories/health/LinePatientRepository";
 import { PatientRepository } from "../repositories/health/PatientRepository";
-import { EmailService, ValidateService } from "../services";
+import { EmailService, ValidateService, ClinicService } from "../services";
 
 export interface Context {
   db: {
@@ -24,6 +24,7 @@ export interface Context {
   services: {
     emailService: EmailService;
     validateService: ValidateService;
+    clinicService: ClinicService;
   };
   signature?: SessionInfo;
 }
@@ -40,25 +41,31 @@ export class RequestContext {
 
   private static buildContext(): Context {
     const connection = getConnection();
-    return {
-      db: {
-        connection,
-        userRepository: connection.getCustomRepository(UserRepository),
-        sessionRepository: connection.getCustomRepository(SessionRepository),
-        tokenRepository: connection.getCustomRepository(TokenRepository),
-        clinicRepository: connection.getCustomRepository(ClinicRepository),
-        doctorRepository: connection.getCustomRepository(DoctorRepository),
-        lineRepository: connection.getCustomRepository(LineRepository),
-        patientRepository: connection.getCustomRepository(PatientRepository),
-        clinicDoctorRepository: connection.getCustomRepository(ClinicDoctorRepository),
-        linePatientRepository: connection.getCustomRepository(LinePatientRepository),
-        attendingDayRepository: connection.getCustomRepository(AttendingDayRepository)
 
-      },
-      services: {
-        emailService: new EmailService(),
-        validateService: new ValidateService(),
-      },
+    const db = {
+      connection,
+      userRepository: connection.getCustomRepository(UserRepository),
+      sessionRepository: connection.getCustomRepository(SessionRepository),
+      tokenRepository: connection.getCustomRepository(TokenRepository),
+      clinicRepository: connection.getCustomRepository(ClinicRepository),
+      doctorRepository: connection.getCustomRepository(DoctorRepository),
+      lineRepository: connection.getCustomRepository(LineRepository),
+      patientRepository: connection.getCustomRepository(PatientRepository),
+      clinicDoctorRepository: connection.getCustomRepository(ClinicDoctorRepository),
+      linePatientRepository: connection.getCustomRepository(LinePatientRepository),
+      attendingDayRepository: connection.getCustomRepository(AttendingDayRepository)
+
+    };
+
+    const services = {
+      emailService: new EmailService(),
+      validateService: new ValidateService(),
+      clinicService: new ClinicService(db.clinicRepository, db.clinicDoctorRepository),
+    };
+
+    return {
+      db,
+      services,
     };
   }
 }

@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class associationClinicDoctorsPopulate1621891492204 implements MigrationInterface {
+export class associationClinicDoctorPopulate1621955873256 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         const allClinics = await queryRunner.query('SELECT * FROM clinics');
@@ -18,5 +18,4 @@ export class associationClinicDoctorsPopulate1621891492204 implements MigrationI
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query('DELETE FROM clinic_doctors')
     }
-
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ClinicDoctor } from ".";
 
 @Entity({ name: "clinics" })
@@ -21,7 +21,7 @@ export class Clinic {
   })
   address!:string;
 
-  @ManyToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.clinic)
+  @OneToMany(() => ClinicDoctor, clinicDoctor => clinicDoctor.clinic)
   clinicDoctors!:ClinicDoctor[];
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

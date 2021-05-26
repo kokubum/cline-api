@@ -12,10 +12,10 @@ export class Line {
   })
   active!:boolean;
 
-  @OneToMany(() => LinePatient, linePatient => linePatient.line)
+  @OneToMany(() => LinePatient, linePatient => linePatient.line, { eager: true })
   linePatients!:LinePatient[];
 
-  @OneToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.line, { onDelete: "CASCADE" })
+  @OneToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.line, { onDelete: "CASCADE", nullable: false })
   @JoinColumn()
   clinicDoctor!:ClinicDoctor;
 

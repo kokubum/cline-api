@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class attendingDaysPopulate1621891974737 implements MigrationInterface {
+export class attendingDaysPopulate1621955958319 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         const weekDays = await queryRunner.query(`SELECT * FROM week_days`);

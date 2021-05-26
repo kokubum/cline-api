@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class patientsPopulate1621891912388 implements MigrationInterface {
+export class patientsPopulate1621955915349 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`INSERT INTO patients (id, name, document, email, plan_number) VALUES (uuid_generate_v4(), 'Luiza Correia Rodrigues', '91633041042', 'luizacorreiarodrigues@gmail.com', '1')`);

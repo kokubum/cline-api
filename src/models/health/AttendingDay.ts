@@ -15,7 +15,7 @@ export class AttendingDay {
   @Column()
   onDuty!:boolean;
 
-  @ManyToOne(() => WeekDay)
+  @ManyToOne(() => WeekDay, { eager: true })
   weekDay!:WeekDay;
 
   @ManyToOne(() => ClinicDoctor, clinicDoctor => clinicDoctor.attendingDays, {

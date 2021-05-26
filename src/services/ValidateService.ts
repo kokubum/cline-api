@@ -6,7 +6,7 @@ import { ReqFields } from "../@types/auth.types";
 
 // eslint-disable-next-line no-unused-vars
 type formatFunction = (nameOfField: string, ...options: string[]) => void;
-type Type = "String"|"Boolean"|"Number"|"uuid"|"Array";
+type Type = "String"|"Boolean"|"Number"|"Array";
 
 interface ValidateFactory {
   [field: string]: formatFunction;
@@ -27,10 +27,13 @@ export class ValidateService {
       firstName: this.nameFormat,
       lastName: this.nameFormat,
       confirmPassword: this.passwordFormat,
+      id: this.validateUUIDV4Format,
+      clinicId: this.validateUUIDV4Format,
+      doctorId: this.validateUUIDV4Format
     };
 
     this.types = {
-      id: "uuid",
+      id: "String",
       email: "String",
       password: "String",
       firstName: "String",
@@ -45,7 +48,7 @@ export class ValidateService {
     const validBody = this.requiredFields<T>(formattedFields, requiredFields);
 
     this.typeCheck(validBody);
-    this.fieldsFormat(validBody);
+    this.checkFieldsFormat(validBody);
     return validBody;
   }
 
@@ -62,7 +65,7 @@ export class ValidateService {
     return formattedFields;
   }
 
-  fieldsFormat(fieldsObj: ReqFields): void {
+  checkFieldsFormat(fieldsObj: ReqFields): void {
     Object.keys(fieldsObj).forEach(field => {
       const validate = this.factory[field];
       if (validate) validate(fieldsObj[field], field);
@@ -74,7 +77,7 @@ export class ValidateService {
     Object.keys(fieldsObj).forEach(field => {
       const typeCheck = this.types[field];
       if (typeCheck) {
-        if ((typeCheck === "uuid" && !this.validateUUIDV4(fieldsObj[field])) || !this.validateType(fieldsObj[field], typeCheck)) {
+        if (!this.validateType(fieldsObj[field], typeCheck)) {
           invalidTypes[field] = `This field should be of ${typeCheck} type`;
         }
       }
@@ -83,10 +86,6 @@ export class ValidateService {
     if (Object.keys(invalidTypes).length !== 0) {
       throw new AppError("Fields with invalid type", 400, invalidTypes);
     }
-  }
-
-  validateUUIDV4(uuid:string):boolean {
-    return uuidValidate(uuid) && uuidVersion(uuid) === 4;
   }
 
   validateType(value:any, type:Type):boolean {
@@ -119,6 +118,14 @@ export class ValidateService {
       }
     });
     return formattedFields;
+  }
+
+  validateUUIDV4Format(uuid:string, ...options: string[]):void {
+    const isUUID = uuidValidate(uuid) && uuidVersion(uuid) === 4;
+    if (!isUUID) {
+      const errorMessage = AppError.buildErrorMessage(options, "This field must have an uuid v4 format");
+      throw new AppError("Invalid uuid field", 400, errorMessage);
+    }
   }
 
   emailFormat(email: string): void {

@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class lineCreate1621891881889 implements MigrationInterface {
+export class lineCreate1621955897664 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         const allClinicDoctors = await queryRunner.query(`SELECT * FROM clinic_doctors`);

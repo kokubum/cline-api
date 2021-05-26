@@ -2,12 +2,14 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 // eslint-disable-next-line no-shadow
-enum WeekDayEnum{
+export enum WeekDayEnum{
+  DOMINGO = "Domingo",
   SEGUNDA = "Segunda-Feira",
   TERCA = "Terça-Feira",
   QUARTA = "Quarta-Feira",
   QUINTA = "Quinta-Feira",
-  SEXTA = "Sexta-Feira"
+  SEXTA = "Sexta-Feira",
+  SABADO = "Sábado"
 }
 
 @Entity({ name: "week_days" })

@@ -1,4 +1,4 @@
-import { v1 as uuidV1 } from "uuid";
+import { v1 as uuidV1, v4 as uuidV4 } from "uuid";
 import { SignUpBody } from "../../../src/@types/auth.types";
 import { ValidateService } from "../../../src/services";
 import { generateLoginBody, generateSignUpBody } from "../../__mocks__/auth";
@@ -107,11 +107,11 @@ describe("Validate Service", () => {
 
   describe("Fields Format", () => {
     it("Should run all format functions in the passed request body", () => {
-      expect(() => validateService.fieldsFormat(generateSignUpBody({}))).not.toThrow();
+      expect(() => validateService.checkFieldsFormat(generateSignUpBody({}))).not.toThrow();
     });
 
     it("Should not throw an error if the field isn't in the validate factory", () => {
-      expect(() => validateService.fieldsFormat({ randomField: "random_string" })).not.toThrow();
+      expect(() => validateService.checkFieldsFormat({ randomField: "random_string" })).not.toThrow();
     });
   });
 
@@ -189,22 +189,28 @@ describe("Validate Service", () => {
       expect(() => validateService.typeCheck({ randomType: true })).not.toThrow();
     });
 
-    it("Should throw an error if try to send a normal string in a uuid field", () => {
-      expect(() => validateService.typeCheck({ id: "normal_string" })).toThrow(
-        "Fields with invalid type",
-      );
-    });
-
-    it("Should throw an error if try to send one uuid that is not from version 4 in the uuid field", () => {
-      expect(() => validateService.typeCheck({ id: uuidV1() })).toThrow(
-        "Fields with invalid type",
-      );
-    });
-
     it("Should throw an error if the field has a wrong type", () => {
       expect(() => validateService.typeCheck({ email: 123 })).toThrow(
         "Fields with invalid type",
       );
+    });
+  });
+
+  describe("UUID Format", () => {
+    it("Should throw an error if try to send one uuid that is not from version 4 in the uuid field", () => {
+      expect(() => validateService.validateUUIDV4Format(uuidV1())).toThrow(
+        "Invalid uuid field",
+      );
+    });
+
+    it("Should throw an error if try to send a normal string in a uuid field", () => {
+      expect(() => validateService.validateUUIDV4Format("normal_string")).toThrow(
+        "Invalid uuid field",
+      );
+    });
+
+    it("Should not throw an error if pass an v4 uuid", () => {
+      expect(() => validateService.validateUUIDV4Format(uuidV4())).not.toThrow();
     });
   });
 });

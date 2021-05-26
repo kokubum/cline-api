@@ -1,10 +1,10 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class weekDaysPopulate1621891952775 implements MigrationInterface {
+export class weekDaysPopulate1621955937533 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            INSERT INTO week_days (name) VALUES ('Segunda-Feira'),('Terça-Feira'),('Quarta-Feira'),('Quinta-Feira'),('Sexta-Feira')
+            INSERT INTO week_days (name) VALUES ('Domingo'),('Segunda-Feira'),('Terça-Feira'),('Quarta-Feira'),('Quinta-Feira'),('Sexta-Feira'),('Sábado')
         `);
     }
 

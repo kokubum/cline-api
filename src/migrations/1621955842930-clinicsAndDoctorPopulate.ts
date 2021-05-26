@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class clinicsAndDoctorPopulate1621891432574 implements MigrationInterface {
+export class clinicsAndDoctorPopulate1621955842930 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         // Clinic seed
@@ -55,4 +55,5 @@ export class clinicsAndDoctorPopulate1621891432574 implements MigrationInterface
         await queryRunner.query(`DELETE FROM doctors`);
        
     }
+
 }
