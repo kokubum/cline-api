@@ -6,10 +6,10 @@ import { Line } from "../../models";
 export class LineRepository extends Repository<Line> {
   async findLineById(id:string, active = [true, false]):Promise<Line> {
     const line = await this.createQueryBuilder("lines")
-      .innerJoinAndSelect("lines.linePatients", "linePatients")
-      .innerJoinAndSelect("lines.clinicDoctor", "clinicDoctor")
-      .innerJoinAndSelect("clinicDoctor.attendingDays", "attendingDays")
-      .innerJoinAndSelect("attendingDays.weekDay", "weekDay")
+      .leftJoinAndSelect("lines.linePatients", "linePatients")
+      .leftJoinAndSelect("lines.clinicDoctor", "clinicDoctor")
+      .leftJoinAndSelect("clinicDoctor.attendingDays", "attendingDays")
+      .leftJoinAndSelect("attendingDays.weekDay", "weekDay")
       .where("lines.id = :id", { id })
       .andWhere("lines.active = ANY(:active)", { active })
       .getOne();

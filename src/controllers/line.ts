@@ -15,6 +15,8 @@ export async function getInLine(req:Request, res:Response) {
   const { patientId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["patientId"]);
 
   const patient = await ctx.db.patientRepository.findById(patientId);
+  console.log(patient);
+  console.log(lineId);
   const line = await ctx.db.lineRepository.findLineById(lineId, [true]);
 
   await ctx.services.lineService.checkIfPatientAlreadyInLine(lineId, patientId);

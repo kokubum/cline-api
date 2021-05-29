@@ -18,8 +18,8 @@ export class LinePatientRepository extends Repository<LinePatient> {
 
   async findByIdAndDoctor(linePatientId:string, doctorId:string, lineId:string, status:Status):Promise<LinePatient> {
     const linePatient = await this.createQueryBuilder("linePatients")
-      .innerJoinAndSelect("linePatients.line", "line")
-      .innerJoinAndSelect("line.clinicDoctor", "clinicDoctor")
+      .leftJoinAndSelect("linePatients.line", "line")
+      .leftJoinAndSelect("line.clinicDoctor", "clinicDoctor")
       .where("linePatients.id = :linePatientId", { linePatientId })
       .andWhere("line.id = :lineId", { lineId })
       .andWhere("clinicDoctor.doctor_id = :doctorId", { doctorId })
