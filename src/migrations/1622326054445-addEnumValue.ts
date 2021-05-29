@@ -1,7 +1,7 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class test1622242075431 implements MigrationInterface {
-    name = 'test1622242075431'
+export class addEnumValue1622326054445 implements MigrationInterface {
+    name = 'addEnumValue1622326054445'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "clinic_doctors" ADD "avg_attending_time" TIME`);
