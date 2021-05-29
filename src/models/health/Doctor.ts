@@ -18,7 +18,7 @@ export class Doctor {
   @Column({ unique: true })
   email!:string;
 
-  @OneToMany(() => ClinicDoctor, clinicDoctor => clinicDoctor.clinic)
+  @OneToMany(() => ClinicDoctor, clinicDoctor => clinicDoctor.doctor)
   clinicDoctors!:ClinicDoctor[];
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

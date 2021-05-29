@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getFilteredClinics, getDoctorsFromClinic, getFilteredDoctorsFromClinic, getDoctorLineFromClinic } from "../controllers/clinic";
+import { getFilteredClinics, getDoctorsFromClinic, getFilteredDoctorsFromClinic, getLineFromClinic } from "../controllers";
 import { catchAsync } from "../helpers/catchAsync";
 
 class ClinicRouter {
@@ -14,7 +14,7 @@ class ClinicRouter {
     this.router.post("/", catchAsync(getFilteredClinics));
     this.router.get("/:id/doctors", catchAsync(getDoctorsFromClinic));
     this.router.post("/:id/doctors", catchAsync(getFilteredDoctorsFromClinic));
-    this.router.get("/:clinicId/doctors/:doctorId/line", catchAsync(getDoctorLineFromClinic));
+    this.router.get("/:clinicId/doctors/:doctorId/line", catchAsync(getLineFromClinic));
   }
 }
 

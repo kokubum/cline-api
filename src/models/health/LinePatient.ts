@@ -1,21 +1,30 @@
 /* eslint-disable no-unused-vars */
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Check, Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Line, Patient } from ".";
 
 // eslint-disable-next-line no-shadow
-enum Status{
+export enum Status{
   ONHOLD,
   DONE,
-  INPROGRESS
-
+  INPROGRESS,
+  DELETED
 }
 
 @Entity({ name: "line_patients" })
+@Check("position>0")
 export class LinePatient {
   @PrimaryGeneratedColumn("uuid")
   id!:string;
 
-  @Column({ type: "time" })
+  @Column({
+    type: "int"
+  })
+  position!:number;
+
+  @Column({
+    type: "time",
+    nullable: true
+  })
   waitingTime!:string;
 
   @Column({
@@ -26,7 +35,8 @@ export class LinePatient {
 
   @Column({
     type: "enum",
-    enum: Status
+    enum: Status,
+    default: Status.ONHOLD
   })
   status!:Status;
 
@@ -36,7 +46,8 @@ export class LinePatient {
   line!:Line;
 
   @ManyToOne(() => Patient, {
-    onDelete: "CASCADE"
+    onDelete: "CASCADE",
+    eager: true
   })
   patient!:Patient
 

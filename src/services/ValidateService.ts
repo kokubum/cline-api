@@ -29,11 +29,19 @@ export class ValidateService {
       confirmPassword: this.passwordFormat,
       id: this.validateUUIDV4Format,
       clinicId: this.validateUUIDV4Format,
-      doctorId: this.validateUUIDV4Format
+      doctorId: this.validateUUIDV4Format,
+      lineId: this.validateUUIDV4Format,
+      patientId: this.validateUUIDV4Format,
+      linePatientId: this.validateUUIDV4Format,
     };
 
     this.types = {
       id: "String",
+      clinicId: "String",
+      doctorId: "String",
+      lineId: "String",
+      patientId: "String",
+      linePatientId: "String",
       email: "String",
       password: "String",
       firstName: "String",
@@ -88,16 +96,8 @@ export class ValidateService {
     }
   }
 
-  validateType(value:any, type:Type):boolean {
-    return (Object.prototype.toString.call(value) === `[object ${type}]`);
-  }
-
-  confirmPasswordEquality(confirmPassword: string, password: string): void {
-    if (password !== confirmPassword) {
-      throw new AppError("The password doesn't match", 400, {
-        confirmPassword: "This field have to be equal to the password field",
-      });
-    }
+  getMissingFields(fields: any, requiredFields: string[]): string[] {
+    return requiredFields.filter(field => fields[field] === undefined);
   }
 
   hasSameFields<T>(fields: any, requiredFields: string[]): fields is T {
@@ -105,8 +105,8 @@ export class ValidateService {
     return requiredFields.every(field => objFields.includes(field));
   }
 
-  getMissingFields(fields: any, requiredFields: string[]): string[] {
-    return requiredFields.filter(field => fields[field] === undefined);
+  validateType(value:any, type:Type):boolean {
+    return (Object.prototype.toString.call(value) === `[object ${type}]`);
   }
 
   formatFields(fields: ReqFields): ReqFields {
@@ -132,6 +132,14 @@ export class ValidateService {
     if (!isEmail(email)) {
       throw new AppError("Invalid email field", 400, {
         email: "This field have an invalid format",
+      });
+    }
+  }
+
+  confirmPasswordEquality(confirmPassword: string, password: string): void {
+    if (password !== confirmPassword) {
+      throw new AppError("The password doesn't match", 400, {
+        confirmPassword: "This field have to be equal to the password field",
       });
     }
   }

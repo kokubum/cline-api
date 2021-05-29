@@ -9,7 +9,7 @@ export class ClinicDoctorRepository extends Repository<ClinicDoctor> {
       .innerJoinAndSelect("clinicDoctors.doctor", "doctor")
       .innerJoinAndSelect("clinicDoctors.attendingDays", "attendingDays")
       .innerJoinAndSelect("attendingDays.weekDay", "weekDay")
-      .where("clinicDoctors.clinic_id = :id", { id: clinicId })
+      .where("clinicDoctors.clinic_id = :clinicId", { clinicId })
       .andWhere("doctor.name ILIKE :name || '%'", { name: filter })
       .getMany();
   }
@@ -24,7 +24,7 @@ export class ClinicDoctorRepository extends Repository<ClinicDoctor> {
           id: doctorId
         }
       },
-      relations: ["doctor", "attendingDays", "line"]
+      relations: ["doctor", "attendingDays", "line"],
     });
 
     if (!clinicDoctor) {

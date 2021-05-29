@@ -1,5 +1,12 @@
 import { SimpleDoctor } from "./doctor.types";
 
+export interface SimpleClinic {
+  id:string;
+  name:string;
+  isAttendingToday:boolean;
+}
+
+
 export interface ClinicInfo{
   id:string;
   name:string;

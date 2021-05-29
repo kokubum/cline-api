@@ -1,7 +1,7 @@
 import express, { Express } from "express";
 import { globalErrorHandler, notFoundUrlHandler } from "./controllers";
 import { injectCtx } from "./middlewares/context";
-import { authRouter, clinicRouter } from "./routes";
+import { authRouter, clinicRouter, doctorRouter, lineRouter } from "./routes";
 
 class AppController {
   public readonly app: Express;
@@ -20,6 +20,8 @@ class AppController {
   private routes(): void {
     this.app.use("/api/v1/auth", authRouter);
     this.app.use("/api/v1/clinics", clinicRouter);
+    this.app.use("/api/v1/doctors", doctorRouter);
+    this.app.use("/api/v1/lines", lineRouter);
     this.app.all("*", notFoundUrlHandler);
     this.app.use(globalErrorHandler);
   }

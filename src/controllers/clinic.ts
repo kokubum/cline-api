@@ -47,13 +47,13 @@ export async function getFilteredDoctorsFromClinic(req:Request, res:Response) {
   });
 }
 
-export async function getDoctorLineFromClinic(req:Request, res:Response) {
+export async function getLineFromClinic(req:Request, res:Response) {
   const { ctx } = req;
   const { clinicId, doctorId } = req.params;
 
   ctx.services.validateService.checkFieldsFormat({ clinicId, doctorId });
 
-  const doctorLine = await ctx.services.clinicService.getFormattedDoctorLineFromClinic(clinicId, doctorId);
+  const doctorLine = await ctx.services.clinicDoctorService.getFormattedDoctorLineFromClinic(clinicId, doctorId);
 
   return res.status(200).send({
     status: "success",
