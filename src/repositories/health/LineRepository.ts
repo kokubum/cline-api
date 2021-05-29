@@ -6,6 +6,7 @@ import { Line } from "../../models";
 export class LineRepository extends Repository<Line> {
   async findLineById(id:string, active = [true, false]):Promise<Line> {
     const line = await this.createQueryBuilder("lines")
+      .innerJoinAndSelect("lines.linePatients", "linePatients")
       .innerJoinAndSelect("lines.clinicDoctor", "clinicDoctor")
       .innerJoinAndSelect("clinicDoctor.attendingDays", "attendingDays")
       .innerJoinAndSelect("attendingDays.weekDay", "weekDay")
