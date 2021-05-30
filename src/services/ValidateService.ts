@@ -1,17 +1,24 @@
 import isEmail from "validator/lib/isEmail";
-import { AppError } from "../helpers/appError";
+import { version as uuidVersion, validate as uuidValidate } from "uuid";
+import { ApiMessage, AppError } from "../helpers/appError";
 import { isString } from "../helpers/utils";
 import { ReqFields } from "../@types/auth.types";
 
 // eslint-disable-next-line no-unused-vars
 type formatFunction = (nameOfField: string, ...options: string[]) => void;
+type Type = "String"|"Boolean"|"Number"|"Array";
 
 interface ValidateFactory {
   [field: string]: formatFunction;
 }
+interface TypeFactory{
+  [field:string]:Type;
+}
 
 export class ValidateService {
   private readonly factory: ValidateFactory;
+
+  private readonly types:TypeFactory;
 
   constructor() {
     this.factory = {
@@ -20,17 +27,41 @@ export class ValidateService {
       firstName: this.nameFormat,
       lastName: this.nameFormat,
       confirmPassword: this.passwordFormat,
+      id: this.validateUUIDV4Format,
+      clinicId: this.validateUUIDV4Format,
+      doctorId: this.validateUUIDV4Format,
+      lineId: this.validateUUIDV4Format,
+      patientId: this.validateUUIDV4Format,
+      linePatientId: this.validateUUIDV4Format,
+    };
+
+    this.types = {
+      id: "String",
+      clinicId: "String",
+      doctorId: "String",
+      lineId: "String",
+      patientId: "String",
+      linePatientId: "String",
+      email: "String",
+      password: "String",
+      firstName: "String",
+      lastName: "String",
+      confirmPassword: "String",
+      search: "String",
     };
   }
 
   requestBody<T>(fieldsObj: ReqFields, requiredFields: string[]): T {
-    const validBody = this.requiredFields<T>(fieldsObj, requiredFields);
-    this.fieldsFormat(fieldsObj);
+    const formattedFields = this.formatFields(fieldsObj);
+    const validBody = this.requiredFields<T>(formattedFields, requiredFields);
+
+    this.typeCheck(validBody);
+    this.checkFieldsFormat(validBody);
     return validBody;
   }
 
-  requiredFields<T>(fieldsObj: ReqFields, requiredFields: string[]): T {
-    const formattedFields = this.formatFields(fieldsObj, requiredFields);
+  requiredFields<T>(fieldsObj: ReqFields, requiredFields: string[]):T {
+    const formattedFields = fieldsObj;
     if (!this.hasSameFields<T>(formattedFields, requiredFields)) {
       const missingFields = this.getMissingFields(formattedFields, requiredFields);
 
@@ -42,51 +73,73 @@ export class ValidateService {
     return formattedFields;
   }
 
-  confirmPasswordEquality(confirmPassword: string, password: string): void {
-    if (password !== confirmPassword) {
-      throw new AppError("The password doesn't match", 400, {
-        confirmPassword: "This field have to be equal to the password field",
-      });
-    }
+  checkFieldsFormat(fieldsObj: ReqFields): void {
+    Object.keys(fieldsObj).forEach(field => {
+      const validate = this.factory[field];
+      if (validate) validate(fieldsObj[field], field);
+    });
   }
 
-  hasSameFields<T>(fields: any, requiredFields: string[]): fields is T {
-    const signUpFields = Object.keys(fields);
-    const sameLength = signUpFields.length === requiredFields.length;
-    return sameLength && requiredFields.every(field => signUpFields.includes(field));
+  typeCheck(fieldsObj:ReqFields):void {
+    const invalidTypes:ApiMessage = {};
+    Object.keys(fieldsObj).forEach(field => {
+      const typeCheck = this.types[field];
+      if (typeCheck) {
+        if (!this.validateType(fieldsObj[field], typeCheck)) {
+          invalidTypes[field] = `This field should be of ${typeCheck} type`;
+        }
+      }
+    });
+
+    if (Object.keys(invalidTypes).length !== 0) {
+      throw new AppError("Fields with invalid type", 400, invalidTypes);
+    }
   }
 
   getMissingFields(fields: any, requiredFields: string[]): string[] {
     return requiredFields.filter(field => fields[field] === undefined);
   }
 
-  formatFields(fields: ReqFields, requiredFields: string[]): ReqFields {
+  hasSameFields<T>(fields: any, requiredFields: string[]): fields is T {
+    const objFields = Object.keys(fields);
+    return requiredFields.every(field => objFields.includes(field));
+  }
+
+  validateType(value:any, type:Type):boolean {
+    return (Object.prototype.toString.call(value) === `[object ${type}]`);
+  }
+
+  formatFields(fields: ReqFields): ReqFields {
     const formattedFields = fields;
     Object.keys(fields).forEach(field => {
-      if (!requiredFields.includes(field)) {
-        delete formattedFields[field];
-      } else {
-        const fieldValue = fields[field];
-        if (isString(fieldValue)) {
-          formattedFields[field] = fieldValue.trim();
-          if (fieldValue === "") delete formattedFields[field];
-        }
+      const fieldValue = fields[field];
+      if (isString(fieldValue)) {
+        formattedFields[field] = fieldValue.trim();
       }
     });
     return formattedFields;
   }
 
-  fieldsFormat(fieldsObj: ReqFields): void {
-    Object.keys(fieldsObj).forEach(field => {
-      const validate = this.factory[field];
-      validate(fieldsObj[field], field);
-    });
+  validateUUIDV4Format(uuid:string, ...options: string[]):void {
+    const isUUID = uuidValidate(uuid) && uuidVersion(uuid) === 4;
+    if (!isUUID) {
+      const errorMessage = AppError.buildErrorMessage(options, "This field must have an uuid v4 format");
+      throw new AppError("Invalid uuid field", 400, errorMessage);
+    }
   }
 
   emailFormat(email: string): void {
     if (!isEmail(email)) {
       throw new AppError("Invalid email field", 400, {
         email: "This field have an invalid format",
+      });
+    }
+  }
+
+  confirmPasswordEquality(confirmPassword: string, password: string): void {
+    if (password !== confirmPassword) {
+      throw new AppError("The password doesn't match", 400, {
+        confirmPassword: "This field have to be equal to the password field",
       });
     }
   }
@@ -99,10 +152,10 @@ export class ValidateService {
   }
 
   nameFormat(name: string, ...options: string[]): void {
-    const isInvalid = name.split(" ").length !== 1;
+    const isInvalid = name.split(" ").length !== 1 || name === "";
 
     if (isInvalid) {
-      const errorMessage = AppError.buildErrorMessage(options, "This field need to have only a single word");
+      const errorMessage = AppError.buildErrorMessage(options, "This field need to have a single word");
       throw new AppError("Some misformatted fields", 400, errorMessage);
     }
   }

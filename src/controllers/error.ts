@@ -15,7 +15,7 @@ export function globalErrorHandler(
       data: err.apiMessage,
     });
   }
-
+  console.log(err);
   return res.status(500).send({
     status: "error",
     message: "Something went wrong",

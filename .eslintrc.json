@@ -31,7 +31,8 @@
     "object-curly-newline": "off",
     "no-await-in-loop": "off",
     "class-methods-use-this": "off",
-    "arrow-parens":"off"
+    "arrow-parens":"off",
+    "no-param-reassign":"off"
     
   },
   "overrides": [
