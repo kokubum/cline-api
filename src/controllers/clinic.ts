@@ -23,7 +23,7 @@ export async function getDoctorsFromClinic(req:Request, res:Response) {
 
   ctx.services.validateService.checkFieldsFormat({ id });
 
-  const clinicWithDoctors = await ctx.services.clinicService.getFormattedClinicWithDoctors(id);
+  const clinicWithDoctors = await ctx.services.clinicService.getFormattedClinicWithDoctors(ctx, id);
 
   return res.status(200).send({
     status: "success",
@@ -38,7 +38,7 @@ export async function getFilteredDoctorsFromClinic(req:Request, res:Response) {
   ctx.services.validateService.checkFieldsFormat({ id });
   const { search } = ctx.services.validateService.requestBody<SearchBody>(req.body, ["search"]);
 
-  const doctors = await ctx.services.clinicService.getFormattedDoctorsListFromClinic(id, search);
+  const doctors = await ctx.services.clinicService.getFormattedDoctorsListFromClinic(ctx, id, search);
   return res.status(200).send({
     status: "success",
     data: {
@@ -49,11 +49,12 @@ export async function getFilteredDoctorsFromClinic(req:Request, res:Response) {
 
 export async function getLineFromClinic(req:Request, res:Response) {
   const { ctx } = req;
+
   const { clinicId, doctorId } = req.params;
 
   ctx.services.validateService.checkFieldsFormat({ clinicId, doctorId });
 
-  const doctorLine = await ctx.services.clinicDoctorService.getFormattedDoctorLineFromClinic(clinicId, doctorId);
+  const doctorLine = await ctx.services.clinicDoctorService.getFormattedDoctorLineFromClinic(ctx, clinicId, doctorId);
 
   return res.status(200).send({
     status: "success",

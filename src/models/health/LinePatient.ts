@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { format } from "date-fns";
 import { Check, Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Line, Patient } from ".";
 
@@ -25,13 +26,13 @@ export class LinePatient {
     type: "time",
     nullable: true
   })
-  waitingTime!:string;
+  waitingTime!:string|null;
 
   @Column({
     type: "time",
     nullable: true
   })
-  attendingDuration!:string;
+  totalWaitingTime!:string|null;
 
   @Column({
     type: "enum",
@@ -56,4 +57,9 @@ export class LinePatient {
 
   @UpdateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   updatedAt!: Date;
+
+  public setTotalWaitingTime():void {
+    const currentDate = new Date(Date.now());
+    this.totalWaitingTime = format(currentDate.getTime() - this.createdAt.getTime(), "HH:mm:ss");
+  }
 }

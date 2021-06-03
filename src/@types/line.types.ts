@@ -3,7 +3,7 @@ import { LinePatient } from "../models";
 export interface PatientInLineInfo {
   id:string;
   position:number;
-  waitingTime:string;
+  waitingTime:string|null;
   name:string;
 } 
 
@@ -29,7 +29,6 @@ export interface FinishAttendment{
 
 export interface CalledPatient {
   linePatientId:string;
-  waitingTime:string;
   patientId:string;
   patientName:string;
 }

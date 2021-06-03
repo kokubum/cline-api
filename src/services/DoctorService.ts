@@ -1,18 +1,12 @@
 import { SimpleClinic } from "../@types/clinic.types";
 import { DoctorInfo, DoctorWithClinics } from "../@types/doctor.types";
+import { Context } from "../helpers/requestContext";
 import { ClinicDoctor, Doctor } from "../models";
-import { DoctorRepository } from "../repositories";
 import { ClinicDoctorService } from "./ClinicDoctorService";
 
 export class DoctorService {
-  private readonly doctorRepo:DoctorRepository;
-
-  constructor(doctorRepo:DoctorRepository) {
-    this.doctorRepo = doctorRepo;
-  }
-
-  async getFormattedDoctorWithClinics(doctorId:string):Promise<DoctorWithClinics> {
-    const doctor = await this.doctorRepo.findDoctorClinics(doctorId);
+  async getFormattedDoctorWithClinics(ctx:Context, doctorId:string):Promise<DoctorWithClinics> {
+    const doctor = await ctx.db.doctorRepository.findDoctorClinics(doctorId);
 
     const doctorInfo = DoctorService.formatDoctorInfo(doctor);
     const clinicList = DoctorService.formatClinicList(doctor.clinicDoctors);

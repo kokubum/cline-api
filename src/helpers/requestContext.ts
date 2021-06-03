@@ -8,9 +8,11 @@ import { PatientRepository } from "../repositories/health/PatientRepository";
 import { EmailService, ValidateService, ClinicService } from "../services";
 import { ClinicDoctorService } from "../services/ClinicDoctorService";
 import { DoctorService } from "../services/DoctorService";
+import { LinePatientService } from "../services/LinePatientService";
 import { LineService } from "../services/LineService";
 
 export interface Context {
+  [x: string]: any;
   db: {
     connection: Connection;
     userRepository: UserRepository;
@@ -31,6 +33,7 @@ export interface Context {
     clinicDoctorService:ClinicDoctorService;
     doctorService:DoctorService;
     lineService:LineService;
+    linePatientService:LinePatientService;
   };
   signature?: SessionInfo;
 }
@@ -48,33 +51,30 @@ export class RequestContext {
   private static buildContext(): Context {
     const connection = getConnection();
 
-    const db = {
-      connection,
-      userRepository: connection.getCustomRepository(UserRepository),
-      sessionRepository: connection.getCustomRepository(SessionRepository),
-      tokenRepository: connection.getCustomRepository(TokenRepository),
-      clinicRepository: connection.getCustomRepository(ClinicRepository),
-      doctorRepository: connection.getCustomRepository(DoctorRepository),
-      lineRepository: connection.getCustomRepository(LineRepository),
-      patientRepository: connection.getCustomRepository(PatientRepository),
-      clinicDoctorRepository: connection.getCustomRepository(ClinicDoctorRepository),
-      linePatientRepository: connection.getCustomRepository(LinePatientRepository),
-      attendingDayRepository: connection.getCustomRepository(AttendingDayRepository)
-
-    };
-
-    const services = {
-      emailService: new EmailService(),
-      validateService: new ValidateService(),
-      clinicService: new ClinicService(db.clinicRepository, db.clinicDoctorRepository),
-      clinicDoctorService: new ClinicDoctorService(db.clinicDoctorRepository),
-      doctorService: new DoctorService(db.doctorRepository),
-      lineService: new LineService(db.linePatientRepository, db.lineRepository),
-    };
-
     return {
-      db,
-      services,
+      db: {
+        connection,
+        userRepository: connection.getCustomRepository(UserRepository),
+        sessionRepository: connection.getCustomRepository(SessionRepository),
+        tokenRepository: connection.getCustomRepository(TokenRepository),
+        clinicRepository: connection.getCustomRepository(ClinicRepository),
+        doctorRepository: connection.getCustomRepository(DoctorRepository),
+        lineRepository: connection.getCustomRepository(LineRepository),
+        patientRepository: connection.getCustomRepository(PatientRepository),
+        clinicDoctorRepository: connection.getCustomRepository(ClinicDoctorRepository),
+        linePatientRepository: connection.getCustomRepository(LinePatientRepository),
+        attendingDayRepository: connection.getCustomRepository(AttendingDayRepository)
+
+      },
+      services: {
+        emailService: new EmailService(),
+        validateService: new ValidateService(),
+        clinicService: new ClinicService(),
+        clinicDoctorService: new ClinicDoctorService(),
+        doctorService: new DoctorService(),
+        lineService: new LineService(),
+        linePatientService: new LinePatientService(),
+      },
     };
   }
 }

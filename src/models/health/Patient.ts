@@ -19,10 +19,11 @@ export class Patient {
   email!:string;
 
   @Column({
+    type: "character varying",
     nullable: true,
     unique: true
   })
-  planNumber!:string;
+  planNumber!:string|null;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt!: Date;

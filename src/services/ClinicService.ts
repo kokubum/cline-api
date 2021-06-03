@@ -1,22 +1,13 @@
 import { ClinicInfo, ClinicWithDoctors } from "../@types/clinic.types";
 import { SimpleDoctor } from "../@types/doctor.types";
+import { Context } from "../helpers/requestContext";
 import { Clinic, ClinicDoctor } from "../models";
-import { ClinicRepository } from "../repositories";
-import { ClinicDoctorRepository } from "../repositories/health/ClinicDoctorRepository";
+
 import { ClinicDoctorService } from "./ClinicDoctorService";
 
 export class ClinicService {
-  private readonly clinicRepo:ClinicRepository;
-
-  private readonly clinicDoctorRepo:ClinicDoctorRepository;
-
-  constructor(clinicRepo:ClinicRepository, clinicDoctorRepo:ClinicDoctorRepository) {
-    this.clinicRepo = clinicRepo;
-    this.clinicDoctorRepo = clinicDoctorRepo;
-  }
-
-  async getFormattedClinicWithDoctors(clinicId:string):Promise<ClinicWithDoctors> {
-    const clinic = await this.clinicRepo.findClinicWithDoctors(clinicId);
+  async getFormattedClinicWithDoctors(ctx:Context, clinicId:string):Promise<ClinicWithDoctors> {
+    const clinic = await ctx.db.clinicRepository.findClinicWithDoctors(clinicId);
     const formattedDoctors = ClinicService.formatDoctorsList(clinic.clinicDoctors);
     const formattedClinicInfo = ClinicService.formatClinicInfo(clinic);
     return {
@@ -25,8 +16,8 @@ export class ClinicService {
     };
   }
 
-  async getFormattedDoctorsListFromClinic(clinicId:string, filter:string):Promise<SimpleDoctor[]> {
-    const clinicDoctors = await this.clinicDoctorRepo.findDoctorsFromClinic(clinicId, filter);
+  async getFormattedDoctorsListFromClinic(ctx:Context, clinicId:string, filter:string):Promise<SimpleDoctor[]> {
+    const clinicDoctors = await ctx.db.clinicDoctorRepository.findDoctorsFromClinic(clinicId, filter);
 
     return ClinicService.formatDoctorsList(clinicDoctors);
   }

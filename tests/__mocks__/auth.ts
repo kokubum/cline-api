@@ -3,7 +3,7 @@ import { LoginBody, SignUpBody } from "../../src/@types/auth.types";
 import { generateLinkExpireTime } from "../../src/helpers/auth";
 import { Token } from "../../src/models";
 
-export function generateSignUpBody({
+export function generateMockSignUpBody({
   firstName = faker.name.firstName(),
   lastName = faker.name.lastName(),
   password = faker.internet.password(10),
@@ -20,7 +20,7 @@ export function generateSignUpBody({
   };
 }
 
-export function generateLoginBody({
+export function generateMockLoginBody({
   email = faker.internet.email(),
   password = faker.internet.password(10),
 }): LoginBody {
