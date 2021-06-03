@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import app from "../../src/app";
 import { Context, RequestContext } from "../../src/helpers/requestContext";
 import { clearTablesContent } from "../helper";
-import { generateSignUpBody } from "../__mocks__/auth";
+import { generateMockSignUpBody } from "../__mocks__/auth";
 
 let ctx: Context;
 let logoutUrl: string;
@@ -19,13 +19,17 @@ describe("Middlewares", () => {
     activateUrl = "/api/v1/auth/activate-account";
     loginUrl = "/api/v1/auth/login";
   });
+
+  beforeEach(async () => {
+    await clearTablesContent();
+  });
+
   describe("Protect Authentication", () => {
     let token: String;
 
     beforeEach(async () => {
-      await clearTablesContent();
-      const signUpBody = generateSignUpBody({});
-      await request(app).post(signUpUrl).send(generateSignUpBody(signUpBody));
+      const signUpBody = generateMockSignUpBody({});
+      await request(app).post(signUpUrl).send(generateMockSignUpBody(signUpBody));
       const activationToken = await ctx.db.tokenRepository.findOne();
 
       await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);

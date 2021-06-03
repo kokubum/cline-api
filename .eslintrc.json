@@ -32,7 +32,8 @@
     "no-await-in-loop": "off",
     "class-methods-use-this": "off",
     "arrow-parens":"off",
-    "no-param-reassign":"off"
+    "no-param-reassign":"off",
+    "no-plusplus":"off"
     
   },
   "overrides": [

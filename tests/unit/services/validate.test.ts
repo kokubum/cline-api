@@ -1,7 +1,7 @@
 import { v1 as uuidV1, v4 as uuidV4 } from "uuid";
 import { SignUpBody } from "../../../src/@types/auth.types";
 import { ValidateService } from "../../../src/services";
-import { generateLoginBody, generateSignUpBody } from "../../__mocks__/auth";
+import { generateMockLoginBody, generateMockSignUpBody } from "../../__mocks__/auth";
 
 let validateService: ValidateService;
 
@@ -107,7 +107,7 @@ describe("Validate Service", () => {
 
   describe("Fields Format", () => {
     it("Should run all format functions in the passed request body", () => {
-      expect(() => validateService.checkFieldsFormat(generateSignUpBody({}))).not.toThrow();
+      expect(() => validateService.checkFieldsFormat(generateMockSignUpBody({}))).not.toThrow();
     });
 
     it("Should not throw an error if the field isn't in the validate factory", () => {
@@ -117,7 +117,7 @@ describe("Validate Service", () => {
 
   describe("Request Body", () => {
     it("Should run the required fields and the format function, returning a valid body", () => {
-      const validBody = validateService.requestBody<SignUpBody>(generateSignUpBody({}), [
+      const validBody = validateService.requestBody<SignUpBody>(generateMockSignUpBody({}), [
         "email",
         "password",
         "confirmPassword",
@@ -136,28 +136,28 @@ describe("Validate Service", () => {
 
   describe("Has Same Fields", () => {
     it("Should return true if the object has the exact same required fields", () => {
-      expect(validateService.hasSameFields(generateLoginBody({}), ["email", "password"])).toBeTruthy();
+      expect(validateService.hasSameFields(generateMockLoginBody({}), ["email", "password"])).toBeTruthy();
     });
 
     it("Should return false if the object has the exact same length but not the exact same fields", () => {
-      expect(validateService.hasSameFields(generateLoginBody({}), ["field_one", "field_two"])).toBeFalsy();
+      expect(validateService.hasSameFields(generateMockLoginBody({}), ["field_one", "field_two"])).toBeFalsy();
     });
 
     it("Should return true if the object has at least the required fields", () => {
-      expect(validateService.hasSameFields(generateLoginBody({}), ["email"])).toBeTruthy();
+      expect(validateService.hasSameFields(generateMockLoginBody({}), ["email"])).toBeTruthy();
     });
   });
 
   describe("Get Missing Fields", () => {
     it("Should return an array of missing fields", () => {
-      const missingFields = validateService.getMissingFields(generateLoginBody({}), ["email", "password", "plus_field"]);
+      const missingFields = validateService.getMissingFields(generateMockLoginBody({}), ["email", "password", "plus_field"]);
 
       expect(missingFields.length).toBe(1);
       expect(missingFields[0]).toBe("plus_field");
     });
 
     it("Should return an empty array if the body has more or equal fields than the required array", () => {
-      const missingFields = validateService.getMissingFields(generateLoginBody({}), ["email"]);
+      const missingFields = validateService.getMissingFields(generateMockLoginBody({}), ["email"]);
 
       expect(missingFields.length).toBe(0);
     });
@@ -165,7 +165,7 @@ describe("Validate Service", () => {
 
   describe("Format Fields", () => {
     it("Should return a formatted trim object", () => {
-      const body = generateLoginBody({ email: "    random@email.com   ", password: "  random_password" });
+      const body = generateMockLoginBody({ email: "    random@email.com   ", password: "  random_password" });
 
       const formattedBody = validateService.formatFields(body);
 

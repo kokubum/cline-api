@@ -44,6 +44,23 @@ export class LinePatientRepository extends Repository<LinePatient> {
       .execute();
   }
 
+  async updateWaitingTimes(lineId:string, avgAttendingTime:string):Promise<void> {
+    await this.query(`
+      UPDATE line_patients
+        SET 
+          waiting_time = (
+            CASE 
+              WHEN position = 1 THEN '00:00:00'
+              ELSE $1::time * (position-1)
+            END
+          )
+      WHERE 
+        line_id = $2
+          AND
+        status = $3
+    `, [avgAttendingTime, lineId, Status.ONHOLD]);
+  }
+
   async getLineFromDoctor(lineId:string, doctorId:string):Promise<LinePatient[]> {
     const orderedLine = await this.createQueryBuilder("linePatients")
       .innerJoinAndSelect("linePatients.line", "line")

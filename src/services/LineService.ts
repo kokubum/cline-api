@@ -1,23 +1,15 @@
 import { CalledPatient } from "../@types/line.types";
 import { AppError } from "../helpers/appError";
+import { Context } from "../helpers/requestContext";
 import { getFilteredLinePatients } from "../helpers/utils";
 import { Line, LinePatient, Patient, Status } from "../models";
-import { LineRepository } from "../repositories";
-import { LinePatientRepository } from "../repositories/health/LinePatientRepository";
+
 import { ClinicDoctorService } from "./ClinicDoctorService";
+import { LinePatientService } from "./LinePatientService";
 
 export class LineService {
-  private readonly linePatientRepo:LinePatientRepository;
-
-  private readonly lineRepo:LineRepository;
-
-  constructor(linePatientRepo:LinePatientRepository, lineRepo:LineRepository) {
-    this.linePatientRepo = linePatientRepo;
-    this.lineRepo = lineRepo;
-  }
-
-  async getValidLineOfPatients(lineId:string, doctorId:string):Promise<LinePatient[]> {
-    const linePatients = await this.linePatientRepo.getLineFromDoctor(lineId, doctorId);
+  async getValidLineOfPatients(ctx:Context, lineId:string, doctorId:string):Promise<LinePatient[]> {
+    const linePatients = await ctx.db.linePatientRepository.getLineFromDoctor(lineId, doctorId);
 
     if (linePatients.length === 0) {
       throw new AppError("The line is empty", 400);
@@ -26,32 +18,48 @@ export class LineService {
     return linePatients;
   }
 
-  async callPatient(linePatients:LinePatient[], lineId:string):Promise<CalledPatient> {
+  async callPatient(ctx:Context, linePatients:LinePatient[], lineId:string):Promise<CalledPatient> {
     const [firstPatient] = linePatients;
-    firstPatient.status = Status.INPROGRESS;
-    await this.linePatientRepo.save(firstPatient);
+    const { clinicDoctor } = firstPatient.line;
 
-    await this.linePatientRepo.updatePositions(lineId);
+    if (clinicDoctor.avgAttendingTime) {
+      await ctx.db.linePatientRepository.updateWaitingTimes(lineId, clinicDoctor.avgAttendingTime);
+    }
+
+    firstPatient.setTotalWaitingTime();
+    firstPatient.status = Status.INPROGRESS;
+
+    await ctx.db.linePatientRepository.update({ id: firstPatient.id }, {
+      totalWaitingTime: firstPatient.totalWaitingTime,
+      status: Status.INPROGRESS
+    });
+    await ctx.db.linePatientRepository.updatePositions(lineId);
 
     return LineService.formatCalledPatient(firstPatient);
   }
 
-  async finishAttendment(linePatientId:string, doctorId:string, lineId:string):Promise<void> {
-    const linePatient = await this.linePatientRepo.findByIdAndDoctor(linePatientId, doctorId, lineId, Status.INPROGRESS);
+  async finishAttendment(ctx:Context, linePatientId:string, doctorId:string, lineId:string):Promise<void> {
+    const linePatient = await ctx.db.linePatientRepository.findByIdAndDoctor(linePatientId, doctorId, lineId, Status.INPROGRESS);
     linePatient.status = Status.DONE;
-    await this.linePatientRepo.save(linePatient);
+
+    const { clinicDoctor } = linePatient.line;
+    clinicDoctor.setAvgAttendingTime(linePatient.updatedAt);
+    await ctx.db.clinicDoctorRepository.save(clinicDoctor);
+
+    await ctx.db.linePatientRepository.save(linePatient);
+    await ctx.db.linePatientRepository.updateWaitingTimes(lineId, clinicDoctor.avgAttendingTime!);
   }
 
-  async checkIfPatientAlreadyInLine(lineId:string, patientId:string):Promise<void> {
-    const patientInLine = await this.linePatientRepo.getPatientInLine(patientId, lineId, [Status.ONHOLD, Status.INPROGRESS]);
+  async checkIfPatientAlreadyInLine(ctx:Context, lineId:string, patientId:string):Promise<void> {
+    const patientInLine = await ctx.db.linePatientRepository.getPatientInLine(patientId, lineId, [Status.ONHOLD, Status.INPROGRESS]);
 
     if (patientInLine) {
       throw new AppError("The patient is already in line", 400);
     }
   }
 
-  async checkIfPatientIsInLine(lineId:string, patientId:string):Promise<LinePatient> {
-    const patientInLine = await this.linePatientRepo.getPatientInLine(patientId, lineId, [Status.ONHOLD]);
+  async checkIfPatientIsInLine(ctx:Context, lineId:string, patientId:string):Promise<LinePatient> {
+    const patientInLine = await ctx.db.linePatientRepository.getPatientInLine(patientId, lineId, [Status.ONHOLD]);
 
     if (!patientInLine) {
       throw new AppError("The patient isn't in line", 400);
@@ -60,8 +68,8 @@ export class LineService {
     return patientInLine;
   }
 
-  async checkIfDoctorIsAttendingToday(lineId:string):Promise<void> {
-    const line = await this.lineRepo.findLineById(lineId);
+  async checkIfDoctorIsAttendingToday(ctx:Context, lineId:string):Promise<void> {
+    const line = await ctx.db.lineRepository.findLineById(lineId);
 
     const { isAttendingToday } = ClinicDoctorService.isAttendingToday(line.clinicDoctor);
 
@@ -70,30 +78,30 @@ export class LineService {
     }
   }
 
-  async deletePatient(linePatient:LinePatient):Promise<void> {
+  async deletePatient(ctx:Context, linePatient:LinePatient):Promise<void> {
     linePatient.status = Status.DELETED;
 
-    await this.linePatientRepo.save(linePatient);
+    await ctx.db.linePatientRepository.save(linePatient);
   }
 
-  async insertInLine(line:Line, patient:Patient):Promise<LinePatient> {
+  async insertInLine(ctx:Context, line:Line, patient:Patient):Promise<LinePatient> {
     const { avgAttendingTime } = line.clinicDoctor;
-    const position = getFilteredLinePatients(Status.ONHOLD, line.linePatients).length + 1;
+    const filteredLinePatients = getFilteredLinePatients(Status.ONHOLD, line.linePatients);
+    const position = filteredLinePatients.length + 1;
 
-    // Need some logic to input a avg attending time to the patient in the line
-    // const waitingTime = avgAttendingTime ? avgAttendingTime * position : avgAttendingTime;
-    return this.linePatientRepo.save({
+    const waitingTime = LinePatientService.setWaitingTime(avgAttendingTime, filteredLinePatients);
+
+    return ctx.db.linePatientRepository.save({
       line,
       patient,
       position,
-      waitingTime: avgAttendingTime
+      waitingTime
     });
   }
 
   static formatCalledPatient(linePatient:LinePatient):CalledPatient {
     return {
       linePatientId: linePatient.id,
-      waitingTime: linePatient.waitingTime,
       patientId: linePatient.patient.id,
       patientName: linePatient.patient.name
     };

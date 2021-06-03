@@ -22,7 +22,7 @@ export async function getClinicsFromDoctor(req:Request, res:Response) {
 
   ctx.services.validateService.checkFieldsFormat({ id });
 
-  const doctorWithClinics = await ctx.services.doctorService.getFormattedDoctorWithClinics(id);
+  const doctorWithClinics = await ctx.services.doctorService.getFormattedDoctorWithClinics(ctx, id);
 
   return res.status(200).send({
     status: "success",
@@ -35,7 +35,7 @@ export async function getLineFromDoctor(req:Request, res:Response) {
   const { doctorId, clinicId } = req.params;
   ctx.services.validateService.checkFieldsFormat({ clinicId, doctorId });
 
-  const doctorLine = await ctx.services.clinicDoctorService.getFormattedDoctorLineFromClinic(clinicId, doctorId);
+  const doctorLine = await ctx.services.clinicDoctorService.getFormattedDoctorLineFromClinic(ctx, clinicId, doctorId);
 
   return res.status(200).send({
     status: "success",

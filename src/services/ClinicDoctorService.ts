@@ -3,19 +3,13 @@ import { utcToZonedTime } from "date-fns-tz";
 import { AttendingInfo } from "../@types/attendingDay.types";
 import { DoctorLine, SimpleDoctor } from "../@types/doctor.types";
 import { PatientInLineInfo } from "../@types/line.types";
+import { Context } from "../helpers/requestContext";
 import { cmpLinePatients, getFilteredLinePatients } from "../helpers/utils";
 import { ClinicDoctor, Status, WeekDayEnum } from "../models";
-import { ClinicDoctorRepository } from "../repositories/health/ClinicDoctorRepository";
 
 export class ClinicDoctorService {
-  private readonly clinicDoctorRepo:ClinicDoctorRepository;
-
-  constructor(clinicDoctorRepo:ClinicDoctorRepository) {
-    this.clinicDoctorRepo = clinicDoctorRepo;
-  }
-
-  async getFormattedDoctorLineFromClinic(clinicId:string, doctorId:string):Promise<DoctorLine> {
-    const clinicDoctor = await this.clinicDoctorRepo.findDoctorLine(clinicId, doctorId);
+  async getFormattedDoctorLineFromClinic(ctx:Context, clinicId:string, doctorId:string):Promise<DoctorLine> {
+    const clinicDoctor = await ctx.db.clinicDoctorRepository.findDoctorLine(clinicId, doctorId);
 
     return ClinicDoctorService.formatDoctorLine(clinicDoctor);
   }
@@ -25,12 +19,12 @@ export class ClinicDoctorService {
       const currentUTCDate = new Date(Date.now());
 
       const currentZonedDatetime = utcToZonedTime(currentUTCDate, "America/Sao_Paulo");
-      const endAttendingTime = parse(day.end, "HH:mm:SS", currentZonedDatetime);
-      const dayNumber = getDay(currentZonedDatetime);
 
+      const endAttendingTime = parse(day.end, "HH:mm:ss", currentZonedDatetime);
+
+      const dayNumber = getDay(currentZonedDatetime);
       const isTheDay = Object.values(WeekDayEnum)[dayNumber] === day.weekDay.name;
       const isValidHour = isBefore(currentZonedDatetime, endAttendingTime);
-
       return isTheDay && isValidHour;
     });
 

@@ -4,7 +4,7 @@ import { addDays } from "date-fns";
 import * as faker from "faker";
 import { clearTablesContent } from "../helper";
 import app from "../../src/app";
-import { generateLoginBody, generateSignUpBody } from "../__mocks__/auth";
+import { generateMockLoginBody, generateMockSignUpBody } from "../__mocks__/auth";
 import { Context, RequestContext } from "../../src/helpers/requestContext";
 
 let signUpUrl: string;
@@ -27,14 +27,13 @@ describe("Authentication", () => {
     recoverUrl = "/api/v1/auth/recover-password";
     logoutUrl = "/api/v1/auth/logout";
   });
+  beforeEach(async () => {
+    await clearTablesContent();
+  });
 
   describe("Sign Up", () => {
-    beforeEach(async () => {
-      await clearTablesContent();
-    });
-
     it("Should signup an User and return a valid id", async () => {
-      const { status, body } = await request(app).post(signUpUrl).send(generateSignUpBody({}));
+      const { status, body } = await request(app).post(signUpUrl).send(generateMockSignUpBody({}));
 
       expect(status).toBe(201);
       expect(body.status).toBe("success");
@@ -52,7 +51,7 @@ describe("Authentication", () => {
     });
 
     it("Should throw an error if the name fields are empty string", async () => {
-      const { status, body } = await request(app).post(signUpUrl).send(generateSignUpBody({ firstName: "" }));
+      const { status, body } = await request(app).post(signUpUrl).send(generateMockSignUpBody({ firstName: "" }));
 
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
@@ -63,11 +62,11 @@ describe("Authentication", () => {
     it("Should throw an error if try to signup an existing user", async () => {
       await request(app)
         .post(signUpUrl)
-        .send(generateSignUpBody({ email: "unique@email.com" }));
+        .send(generateMockSignUpBody({ email: "unique@email.com" }));
 
       const { status, body } = await request(app)
         .post(signUpUrl)
-        .send(generateSignUpBody({ email: "unique@email.com" }));
+        .send(generateMockSignUpBody({ email: "unique@email.com" }));
 
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
@@ -78,7 +77,7 @@ describe("Authentication", () => {
     it("Should throw an error if the password has less then 10 characters", async () => {
       const { status, body } = await request(app)
         .post(signUpUrl)
-        .send(generateSignUpBody({ password: "small" }));
+        .send(generateMockSignUpBody({ password: "small" }));
 
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
@@ -89,7 +88,7 @@ describe("Authentication", () => {
     it("Should throw an error if the confirmPassword doesn't match the password field", async () => {
       const { status, body } = await request(app)
         .post(signUpUrl)
-        .send(generateSignUpBody({ confirm: "password_mismatch_field" }));
+        .send(generateMockSignUpBody({ confirm: "password_mismatch_field" }));
 
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
@@ -98,15 +97,11 @@ describe("Authentication", () => {
     });
   });
   describe("Login", () => {
-    beforeEach(async () => {
-      await clearTablesContent();
-    });
-
     it("Should login an existing user and receive a token when the valid credentials are passed ", async () => {
       await request(app)
         .post(signUpUrl)
         .send(
-          generateSignUpBody({
+          generateMockSignUpBody({
             email: "existing@email.com",
             password: "random_password",
           }),
@@ -127,14 +122,14 @@ describe("Authentication", () => {
       const { status, body } = await request(app).post(loginUrl).send({
         email: "random@email.com",
       });
-      console.log(body);
+
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
       expect(body.data.password).toBe("This field is required");
     });
 
     it("Should throw an error if the email or the password are invalid", async () => {
-      const { status, body } = await request(app).post(loginUrl).send(generateLoginBody({}));
+      const { status, body } = await request(app).post(loginUrl).send(generateMockLoginBody({}));
 
       expect(status).toBe(401);
       expect(body.status).toBe("fail");
@@ -145,7 +140,7 @@ describe("Authentication", () => {
       await request(app)
         .post(signUpUrl)
         .send(
-          generateSignUpBody({
+          generateMockSignUpBody({
             email: "random_not_activate@email.com",
             password: "random_password",
           }),
@@ -163,12 +158,8 @@ describe("Authentication", () => {
   });
 
   describe("Activate the account", () => {
-    beforeEach(async () => {
-      await clearTablesContent();
-    });
-
     it("Should activate an existing account that wasn't activate yet", async () => {
-      await request(app).post(signUpUrl).send(generateSignUpBody({}));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({}));
 
       const token = await ctx.db.tokenRepository.findOne();
 
@@ -179,7 +170,7 @@ describe("Authentication", () => {
     });
 
     it("Should throw an error if the activation token are expired", async () => {
-      await request(app).post(signUpUrl).send(generateSignUpBody({}));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({}));
 
       const newDateMiliseconds = addDays(new Date(), 1).getTime();
       const nowRef = Date.now;
@@ -196,7 +187,7 @@ describe("Authentication", () => {
     });
 
     it("Should throw an error if try to activate an user that don't exist anymore", async () => {
-      await request(app).post(signUpUrl).send(generateSignUpBody({}));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({}));
       const token = await ctx.db.tokenRepository.findOne();
       await ctx.db.userRepository.delete({});
 
@@ -215,13 +206,9 @@ describe("Authentication", () => {
   });
 
   describe("Send Activation Link", () => {
-    beforeEach(async () => {
-      await clearTablesContent();
-    });
-
     it("Should send the activation link, if the user are registered and isn't activated yet", async () => {
       const email = "random@email.com";
-      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const { body, status } = await request(app).post(sendActivateUrl).send({ email });
 
       expect(status).toBe(200);
@@ -238,7 +225,7 @@ describe("Authentication", () => {
 
     it("Should thrown an error if the user is activated already", async () => {
       const email = "random@email.com";
-      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const token = await ctx.db.tokenRepository.findOne();
       await request(app).get(`${activateUrl}/${token?.tokenCode}`);
 
@@ -251,13 +238,9 @@ describe("Authentication", () => {
   });
 
   describe("Send Recover Link", () => {
-    beforeEach(async () => {
-      await clearTablesContent();
-    });
-
     it("Should send a recovery link if the email is registered and the user is activated", async () => {
       const email = "random@email.com";
-      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const token = await ctx.db.tokenRepository.findOne();
 
       await request(app).get(`${activateUrl}/${token?.tokenCode}`);
@@ -278,8 +261,7 @@ describe("Authentication", () => {
   describe("Verify Recover Link", () => {
     const email = "random@email.com";
     beforeEach(async () => {
-      await clearTablesContent();
-      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const activationToken = await ctx.db.tokenRepository.findOne();
 
       await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);
@@ -324,8 +306,7 @@ describe("Authentication", () => {
   describe("Recover Password", () => {
     const email = "random@email.com";
     beforeEach(async () => {
-      await clearTablesContent();
-      await request(app).post(signUpUrl).send(generateSignUpBody({ email }));
+      await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const activationToken = await ctx.db.tokenRepository.findOne();
 
       await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);
@@ -361,9 +342,8 @@ describe("Authentication", () => {
     let token: string;
 
     beforeEach(async () => {
-      await clearTablesContent();
-      const signUpBody = generateSignUpBody({});
-      await request(app).post(signUpUrl).send(generateSignUpBody(signUpBody));
+      const signUpBody = generateMockSignUpBody({});
+      await request(app).post(signUpUrl).send(generateMockSignUpBody(signUpBody));
       const activationToken = await ctx.db.tokenRepository.findOne();
 
       await request(app).get(`${activateUrl}/${activationToken?.tokenCode}`);
