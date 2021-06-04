@@ -22,6 +22,6 @@ export function globalErrorHandler(
   });
 }
 
-export function notFoundUrlHandler(req: Request, _res: Response, next: NextFunction) {
-  next(new AppError(`Can't find ${req.url} on this server`, 404));
+export function notFoundUrlHandler(req: Request, _res:Response) {
+  throw new AppError(`Can't find ${req.url} on this server`, 404);
 }
