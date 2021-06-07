@@ -9,14 +9,14 @@ export function globalErrorHandler(
   _next: NextFunction,
 ) {
   if (err instanceof AppError) {
-    return res.status(err.statusCode).send({
+    return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
       data: err.apiMessage,
     });
   }
   console.error(err);
-  return res.status(500).send({
+  return res.status(500).json({
     status: "error",
     message: "Something went wrong",
   });

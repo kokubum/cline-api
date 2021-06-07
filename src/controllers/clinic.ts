@@ -7,7 +7,7 @@ export async function getFilteredClinics(req:Request, res:Response) {
   const { search } = ctx.services.validateService.requestBody<SearchBody>(req.body, ["search"]);
   const clinics = await ctx.db.clinicRepository.findClinicsByFilter(search);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: {
       clinics,
@@ -25,7 +25,7 @@ export async function getDoctorsFromClinic(req:Request, res:Response) {
 
   const clinicWithDoctors = await ctx.services.clinicService.getFormattedClinicWithDoctors(ctx, id);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: clinicWithDoctors
   });
@@ -39,7 +39,7 @@ export async function getFilteredDoctorsFromClinic(req:Request, res:Response) {
   const { search } = ctx.services.validateService.requestBody<SearchBody>(req.body, ["search"]);
 
   const doctors = await ctx.services.clinicService.getFormattedDoctorsListFromClinic(ctx, id, search);
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: {
       doctors
@@ -56,7 +56,7 @@ export async function getLineFromClinic(req:Request, res:Response) {
 
   const doctorLine = await ctx.services.clinicDoctorService.getFormattedDoctorLineFromClinic(ctx, clinicId, doctorId);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: doctorLine
   });

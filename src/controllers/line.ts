@@ -22,7 +22,7 @@ export async function getInLine(req:Request, res:Response) {
 
   const linePatient = await ctx.services.lineService.insertInLine(ctx, line, patient);
 
-  return res.status(201).send({
+  return res.status(201).json({
     status: "success",
     data: {
       id: linePatient.id
@@ -42,7 +42,7 @@ export async function attendPatientFromLine(req:Request, res:Response) {
 
   const patientCalled = await ctx.services.lineService.callPatient(ctx, linePatients, lineId);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: {
       patientCalled
@@ -59,7 +59,7 @@ export async function finishAttendment(req:Request, res:Response) {
 
   await ctx.services.lineService.finishAttendment(ctx, linePatientId, doctorId, lineId);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null
   });
@@ -80,10 +80,7 @@ export async function leaveLine(req:Request, res:Response) {
   const patientInLine = await ctx.services.lineService.checkIfPatientIsInLine(ctx, lineId, patientId);
   await ctx.services.lineService.deletePatient(ctx, patientInLine);
 
-  return res.status(204).send({
-    status: "success",
-    data: null
-  });
+  return res.status(204).json();
 }
 
 export async function activateLine(req:Request, res:Response) {
@@ -93,7 +90,7 @@ export async function activateLine(req:Request, res:Response) {
   await ctx.services.lineService.checkIfDoctorIsAttendingToday(ctx, lineId);
   await ctx.db.lineRepository.update(lineId, { active: true });
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null
   });

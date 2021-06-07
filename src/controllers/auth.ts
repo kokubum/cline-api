@@ -20,7 +20,7 @@ export async function signup(req: Request, res: Response) {
 
   ctx.services.emailService.sendEmailLink(user.email, token.tokenCode, user.firstName, "activation");
 
-  return res.status(201).send({
+  return res.status(201).json({
     status: "success",
     data: {
       id: user.id,
@@ -43,7 +43,7 @@ export async function login(req: Request, res: Response) {
 
   const session = await ctx.db.sessionRepository.createSession(user.id);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: {
       token: session.token,
@@ -66,7 +66,7 @@ export async function activateAccount(req: Request, res: Response) {
 
   await ctx.db.tokenRepository.remove(token);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null,
   });
@@ -88,7 +88,7 @@ export async function sendActivationLink(req: Request, res: Response) {
 
   ctx.services.emailService.sendEmailLink(user.email, token.tokenCode, user.firstName, "activation");
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null,
   });
@@ -109,7 +109,7 @@ export async function sendRecoverPasswordLink(req: Request, res: Response) {
     ctx.services.emailService.sendEmailLink(user.email, token.tokenCode, user.firstName, "recovery");
   }
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null,
   });
@@ -124,7 +124,7 @@ export async function verifyRecoverPasswordLink(req: Request, res: Response) {
 
   await ctx.db.userRepository.findById(token.userId);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null,
   });
@@ -147,7 +147,7 @@ export async function recoverPassword(req: Request, res: Response) {
   await ctx.db.userRepository.save(user);
   await ctx.db.tokenRepository.remove(token);
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null,
   });
@@ -160,7 +160,7 @@ export async function logout(req: Request, res: Response) {
 
   session!.active = false;
 
-  return res.status(200).send({
+  return res.status(200).json({
     status: "success",
     data: null,
   });

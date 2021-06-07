@@ -62,7 +62,7 @@ export class LinePatientRepository extends Repository<LinePatient> {
   }
 
   async getLineFromDoctor(lineId:string, doctorId:string):Promise<LinePatient[]> {
-    const orderedLine = await this.createQueryBuilder("linePatients")
+    return this.createQueryBuilder("linePatients")
       .innerJoinAndSelect("linePatients.line", "line")
       .innerJoinAndSelect("line.clinicDoctor", "clinicDoctor")
       .innerJoinAndSelect("linePatients.patient", "patient")
@@ -72,11 +72,5 @@ export class LinePatientRepository extends Repository<LinePatient> {
       .andWhere("linePatients.status = :status", { status: Status.ONHOLD })
       .orderBy("linePatients.position", "ASC")
       .getMany();
-
-    if (!orderedLine) {
-      throw new AppError("Line not found", 404);
-    }
-
-    return orderedLine;
   }
 }

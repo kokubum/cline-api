@@ -13,7 +13,7 @@ class DoctorRouter {
   private registerControllers():void {
     this.router.post("/", catchAsync(getFilteredDoctors));
     this.router.get("/:id/clinics", catchAsync(getClinicsFromDoctor));
-    this.router.get("/:doctorId/clinics/:clinicId", catchAsync(getLineFromDoctor));
+    this.router.get("/:doctorId/clinics/:clinicId/line", catchAsync(getLineFromDoctor));
   }
 }
 

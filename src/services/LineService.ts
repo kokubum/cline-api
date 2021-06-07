@@ -9,6 +9,7 @@ import { LinePatientService } from "./LinePatientService";
 
 export class LineService {
   async getValidLineOfPatients(ctx:Context, lineId:string, doctorId:string):Promise<LinePatient[]> {
+    await ctx.db.lineRepository.findLineById(lineId);
     const linePatients = await ctx.db.linePatientRepository.getLineFromDoctor(lineId, doctorId);
 
     if (linePatients.length === 0) {
