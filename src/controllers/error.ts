@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../helpers/appError";
 
 export function globalErrorHandler(
-  err: Error,
+  err: Error & Partial<AppError>,
   _req: Request,
   res: Response,
   // eslint-disable-next-line no-unused-vars
@@ -15,7 +15,7 @@ export function globalErrorHandler(
       data: err.apiMessage,
     });
   }
-  console.log(err);
+  console.error(err);
   return res.status(500).send({
     status: "error",
     message: "Something went wrong",
