@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { SessionInfo, SessionPatient } from "../@types/auth.types";
+import { DecodedJWT, SessionInfo, SessionPatient } from "../@types/auth.types";
 import { secretKey } from "../config";
 import { AppError } from "../helpers/appError";
-import { DecodedJWT } from "../helpers/auth";
 
 export async function protect(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const { ctx } = req;

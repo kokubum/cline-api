@@ -1,8 +1,8 @@
 import * as faker from "faker";
 import { generate as generateCpf } from "@fnando/cpf";
 import { LoginBody, SignUpBody } from "../../src/@types/auth.types";
-import { generateLinkExpireTime } from "../../src/helpers/auth";
 import { Token } from "../../src/models";
+import { AuthService } from "../../src/services";
 
 export function generateMockSignUpBody({
   firstName = faker.name.firstName(),
@@ -38,7 +38,7 @@ export function generateTokenModel(tokenCode: string, expirationDate?: Date): To
     id: faker.datatype.uuid(),
     tokenCode,
     patientId: faker.datatype.uuid(),
-    expiresAt: expirationDate ?? generateLinkExpireTime(),
+    expiresAt: expirationDate ?? AuthService.generateLinkExpireTime(),
     createdAt: new Date(),
     updatedAt: new Date(),
   };

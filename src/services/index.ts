@@ -5,3 +5,4 @@ export * from "./ClinicDoctorService";
 export * from "./LinePatientService";
 export * from "./LineService";
 export * from "./DoctorService";
+export * from "./AuthService";

@@ -36,4 +36,10 @@ export interface SessionInfo {
   patient: SessionPatient;
 }
 
+export interface DecodedJWT {
+  id: string;
+  iat: number;
+  exp: number;
+}
+
 

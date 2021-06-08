@@ -2,7 +2,7 @@ import { Connection, getConnection } from "typeorm";
 import { SessionInfo } from "../@types/auth.types";
 import { AttendingDayRepository, ClinicDoctorRepository, ClinicRepository, DoctorRepository, LinePatientRepository, LineRepository, PatientRepository, SessionRepository, TokenRepository } from "../repositories";
 
-import { EmailService, ValidateService, ClinicService, ClinicDoctorService, DoctorService, LineService, LinePatientService } from "../services";
+import { EmailService, ValidateService, ClinicService, ClinicDoctorService, DoctorService, LineService, LinePatientService, AuthService } from "../services";
 
 export interface Context {
   db: {
@@ -25,6 +25,7 @@ export interface Context {
     doctorService:DoctorService;
     lineService:LineService;
     linePatientService:LinePatientService;
+    authService:AuthService
   };
   signature?: SessionInfo;
 }
@@ -64,6 +65,7 @@ export class RequestContext {
         doctorService: new DoctorService(),
         lineService: new LineService(),
         linePatientService: new LinePatientService(),
+        authService: new AuthService(),
       },
     };
   }

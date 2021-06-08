@@ -3,7 +3,7 @@ import * as bcrypt from "bcrypt";
 import { EmailBody, LoginBody, RecoverPasswordBody, SignUpBody } from "../@types/auth.types";
 
 import { AppError } from "../helpers/appError";
-import { checkTokenExpiration } from "../helpers/auth";
+
 import { Session } from "../models";
 
 export async function signup(req: Request, res: Response) {
@@ -16,9 +16,9 @@ export async function signup(req: Request, res: Response) {
 
   await ctx.db.patientRepository.checkForRegisteredPatient(validBody.email);
 
-  const patient = await ctx.db.patientRepository.registerPatient(validBody);
+  const patient = await ctx.services.authService.registerPatient(ctx, validBody);
 
-  const token = await ctx.db.tokenRepository.saveToken(patient.id);
+  const token = await ctx.services.authService.saveToken(ctx, patient.id);
 
   ctx.services.emailService.sendEmailLink(patient.email, token.tokenCode, patient.firstName, "activation");
 
@@ -37,13 +37,13 @@ export async function login(req: Request, res: Response) {
 
   const validBody = ctx.services.validateService.requestBody<LoginBody>(req.body, requiredFields);
 
-  const patient = await ctx.db.patientRepository.checkLoginCredentials(validBody.email, validBody.password);
+  const patient = await ctx.services.authService.checkLoginCredentials(ctx, validBody.email, validBody.password);
 
   if (!patient.active) {
     throw new AppError("This account is not activated yet", 403);
   }
 
-  const session = await ctx.db.sessionRepository.createSession(patient.id);
+  const session = await ctx.services.authService.createSession(ctx, patient.id);
 
   return res.status(200).json({
     status: "success",
@@ -59,7 +59,7 @@ export async function activateAccount(req: Request, res: Response) {
 
   const token = await ctx.db.tokenRepository.findTokenByCode(tokenCode);
 
-  checkTokenExpiration(token);
+  ctx.services.authService.checkTokenExpiration(token);
 
   const patient = await ctx.db.patientRepository.findById(token.patientId);
 
@@ -78,7 +78,7 @@ export async function sendActivationLink(req: Request, res: Response) {
   const { ctx } = req;
   const validBody = ctx.services.validateService.requestBody<EmailBody>(req.body, ["email"]);
 
-  const patient = await ctx.db.patientRepository.checkForUnregisteredPatient(validBody.email);
+  const patient = await ctx.db.patientRepository.findRegisteredPatient(validBody.email);
 
   if (patient.active) {
     throw new AppError("This email is already active", 400);
@@ -86,7 +86,7 @@ export async function sendActivationLink(req: Request, res: Response) {
 
   await ctx.db.tokenRepository.removeExistingTokenIfExists(patient.id);
 
-  const token = await ctx.db.tokenRepository.saveToken(patient.id);
+  const token = await ctx.services.authService.saveToken(ctx, patient.id);
 
   ctx.services.emailService.sendEmailLink(patient.email, token.tokenCode, patient.firstName, "activation");
 
@@ -106,7 +106,7 @@ export async function sendRecoverPasswordLink(req: Request, res: Response) {
   if (patient && patient.active) {
     await ctx.db.tokenRepository.removeExistingTokenIfExists(patient.id);
 
-    const token = await ctx.db.tokenRepository.saveToken(patient.id);
+    const token = await ctx.services.authService.saveToken(ctx, patient.id);
 
     ctx.services.emailService.sendEmailLink(patient.email, token.tokenCode, patient.firstName, "recovery");
   }
@@ -122,7 +122,7 @@ export async function verifyRecoverPasswordLink(req: Request, res: Response) {
   const tokenCode = req.params.token;
 
   const token = await ctx.db.tokenRepository.findTokenByCode(tokenCode);
-  checkTokenExpiration(token);
+  ctx.services.authService.checkTokenExpiration(token);
 
   await ctx.db.patientRepository.findById(token.patientId);
 
@@ -138,7 +138,7 @@ export async function recoverPassword(req: Request, res: Response) {
 
   const token = await ctx.db.tokenRepository.findTokenByCode(tokenCode);
 
-  checkTokenExpiration(token);
+  ctx.services.authService.checkTokenExpiration(token);
   const user = await ctx.db.patientRepository.findById(token.patientId);
 
   const requiredFields = ["password", "confirmPassword"];

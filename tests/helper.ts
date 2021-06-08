@@ -2,7 +2,7 @@ import { Connection, DeleteResult, getConnection, ObjectType } from "typeorm";
 import { Context } from "../src/helpers/requestContext";
 import { AttendingDayRepository, ClinicDoctorRepository, ClinicRepository, DoctorRepository, LinePatientRepository, LineRepository, PatientRepository, SessionRepository, TokenRepository } from "../src/repositories";
 
-import { ClinicDoctorService, ClinicService, DoctorService, EmailService, LinePatientService, LineService, ValidateService } from "../src/services";
+import { AuthService, ClinicDoctorService, ClinicService, DoctorService, EmailService, LinePatientService, LineService, ValidateService } from "../src/services";
 
 const constantEntities = ["WeekDay"];
 
@@ -18,7 +18,6 @@ export async function clearTablesContent(): Promise<(DeleteResult|undefined)[]> 
 
 export function generateTestContext():Context {
   const connection = {
-    // eslint-disable-next-line no-unused-vars
     getCustomRepository<T>(_repo:ObjectType<T>):T {
       return {} as T;
     }
@@ -44,6 +43,7 @@ export function generateTestContext():Context {
       doctorService: new DoctorService(),
       lineService: new LineService(),
       linePatientService: new LinePatientService(),
+      authService: new AuthService(),
     },
   };
 }
