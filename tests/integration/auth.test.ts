@@ -32,7 +32,7 @@ describe("Authentication", () => {
   });
 
   describe("Sign Up", () => {
-    it("Should signup an User and return a valid id", async () => {
+    it("Should signup an patient and return a valid id", async () => {
       const { status, body } = await request(app).post(signUpUrl).send(generateMockSignUpBody({}));
 
       expect(status).toBe(201);
@@ -59,7 +59,7 @@ describe("Authentication", () => {
       expect(body.data.firstName).toBe("This field need to have a single word");
     });
 
-    it("Should throw an error if try to signup an existing user", async () => {
+    it("Should throw an error if try to signup an existing patient", async () => {
       await request(app)
         .post(signUpUrl)
         .send(generateMockSignUpBody({ email: "unique@email.com" }));
@@ -97,7 +97,7 @@ describe("Authentication", () => {
     });
   });
   describe("Login", () => {
-    it("Should login an existing user and receive a token when the valid credentials are passed ", async () => {
+    it("Should login an existing patient and receive a token when the valid credentials are passed ", async () => {
       await request(app)
         .post(signUpUrl)
         .send(
@@ -107,7 +107,7 @@ describe("Authentication", () => {
           }),
         );
 
-      await ctx.db.userRepository.update({}, { active: true });
+      await ctx.db.patientRepository.update({}, { active: true });
       const { status, body } = await request(app).post(loginUrl).send({
         email: "existing@email.com",
         password: "random_password",
@@ -136,7 +136,7 @@ describe("Authentication", () => {
       expect(body.message).toBe("Invalid credentials");
     });
 
-    it("Should throw an error if the user isn't activated yet", async () => {
+    it("Should throw an error if the patient isn't activated yet", async () => {
       await request(app)
         .post(signUpUrl)
         .send(
@@ -186,15 +186,15 @@ describe("Authentication", () => {
       expect(body.message).toBe("Token has expired");
     });
 
-    it("Should throw an error if try to activate an user that don't exist anymore", async () => {
+    it("Should throw an error if try to activate an patient that don't exist anymore", async () => {
       await request(app).post(signUpUrl).send(generateMockSignUpBody({}));
       const token = await ctx.db.tokenRepository.findOne();
-      await ctx.db.userRepository.delete({});
+      await ctx.db.patientRepository.delete({});
 
       const { status, body } = await request(app).get(`${activateUrl}/${token?.tokenCode}`);
       expect(status).toBe(404);
       expect(body.status).toBe("fail");
-      expect(body.message).toBe("This user no longer exists");
+      expect(body.message).toBe("Patient not found");
     });
 
     it("Should throw an error if the activation code is invalid", async () => {
@@ -206,7 +206,7 @@ describe("Authentication", () => {
   });
 
   describe("Send Activation Link", () => {
-    it("Should send the activation link, if the user are registered and isn't activated yet", async () => {
+    it("Should send the activation link, if the patient are registered and isn't activated yet", async () => {
       const email = "random@email.com";
       await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const { body, status } = await request(app).post(sendActivateUrl).send({ email });
@@ -215,7 +215,7 @@ describe("Authentication", () => {
       expect(body.status).toBe("success");
     });
 
-    it("Should throw an error if the user isn't registered", async () => {
+    it("Should throw an error if the patient isn't registered", async () => {
       const { body, status } = await request(app).post(sendActivateUrl).send({ email: "random@email.com" });
 
       expect(status).toBe(404);
@@ -223,7 +223,7 @@ describe("Authentication", () => {
       expect(body.message).toBe("This email is not registered");
     });
 
-    it("Should thrown an error if the user is activated already", async () => {
+    it("Should thrown an error if the patient is activated already", async () => {
       const email = "random@email.com";
       await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const token = await ctx.db.tokenRepository.findOne();
@@ -238,7 +238,7 @@ describe("Authentication", () => {
   });
 
   describe("Send Recover Link", () => {
-    it("Should send a recovery link if the email is registered and the user is activated", async () => {
+    it("Should send a recovery link if the email is registered and the patient is activated", async () => {
       const email = "random@email.com";
       await request(app).post(signUpUrl).send(generateMockSignUpBody({ email }));
       const token = await ctx.db.tokenRepository.findOne();
@@ -250,7 +250,7 @@ describe("Authentication", () => {
       expect(body.status).toBe("success");
     });
 
-    it("Should return success if the user is not registered or not activated", async () => {
+    it("Should return success if the patient is not registered or not activated", async () => {
       const { status, body } = await request(app).post(sendRecoverUrl).send({ email: "random@email.com" });
 
       expect(status).toBe(200);
@@ -292,14 +292,14 @@ describe("Authentication", () => {
       expect(body.message).toBe("Token has expired");
     });
 
-    it("Should throw an error if the user no longer exists", async () => {
+    it("Should throw an error if the patient no longer exists", async () => {
       await request(app).post(sendRecoverUrl).send({ email });
       const recoverToken = await ctx.db.tokenRepository.findOne();
-      await ctx.db.userRepository.delete({});
+      await ctx.db.patientRepository.delete({});
       const { status, body } = await request(app).get(`${recoverUrl}/${recoverToken?.tokenCode}`);
       expect(status).toBe(404);
       expect(body.status).toBe("fail");
-      expect(body.message).toBe("This user no longer exists");
+      expect(body.message).toBe("Patient not found");
     });
   });
 
@@ -338,7 +338,7 @@ describe("Authentication", () => {
     });
   });
 
-  describe("Logout User", () => {
+  describe("Logout patient", () => {
     let token: string;
 
     beforeEach(async () => {
@@ -355,7 +355,7 @@ describe("Authentication", () => {
       token = body.data.token;
     });
 
-    it("Should logout an user that is logged in", async () => {
+    it("Should logout an patient that is logged in", async () => {
       const { body, status } = await request(app).get(logoutUrl).set("Authorization", `Bearer ${token}`);
 
       expect(status).toBe(200);

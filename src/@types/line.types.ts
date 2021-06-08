@@ -14,9 +14,6 @@ export interface BasicLineInfo{
   patients:PatientInLineInfo[];
 }
 
-export interface GetInLineBody {
-  patientId:string;
-}
 
 export interface AttendPatientInLineBody {
   doctorId:string;

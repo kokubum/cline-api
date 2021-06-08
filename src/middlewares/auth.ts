@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { SessionInfo } from "../@types/auth.types";
+import { SessionInfo, SessionPatient } from "../@types/auth.types";
 import { secretKey } from "../config";
 import { AppError } from "../helpers/appError";
 import { DecodedJWT } from "../helpers/auth";
@@ -38,11 +38,12 @@ export async function protect(req: Request, _res: Response, next: NextFunction):
     throw new AppError("This Session is no longer active", 401);
   }
 
-  const user = await ctx.db.userRepository.findById(session.userId);
+  const patient:SessionPatient = await ctx.db.patientRepository.findById(session.patientId);
+  delete patient.password;
 
   const sessionInfo: SessionInfo = {
     sessionId: session.id,
-    user,
+    patient,
   };
 
   req.ctx.signature = sessionInfo;

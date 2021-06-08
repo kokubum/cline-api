@@ -1,5 +1,6 @@
 import isEmail from "validator/lib/isEmail";
 import { version as uuidVersion, validate as uuidValidate } from "uuid";
+import { isValid as isValidCpf } from "@fnando/cpf";
 import { ApiMessage, AppError } from "../helpers/appError";
 import { isString } from "../helpers/utils";
 import { ReqFields } from "../@types/auth.types";
@@ -26,6 +27,7 @@ export class ValidateService {
       password: this.passwordFormat,
       firstName: this.nameFormat,
       lastName: this.nameFormat,
+      document: this.documentFormat,
       confirmPassword: this.passwordFormat,
       id: this.validateUUIDV4Format,
       clinicId: this.validateUUIDV4Format,
@@ -37,6 +39,7 @@ export class ValidateService {
 
     this.types = {
       id: "String",
+      document: "String",
       clinicId: "String",
       doctorId: "String",
       lineId: "String",
@@ -157,6 +160,13 @@ export class ValidateService {
     if (isInvalid) {
       const errorMessage = AppError.buildErrorMessage(options, "This field need to have a single word");
       throw new AppError("Some misformatted fields", 400, errorMessage);
+    }
+  }
+
+  documentFormat(document:string, ...options:string[]):void {
+    if (!isValidCpf(document)) {
+      const errorMessage = AppError.buildErrorMessage(options, "This field must be a valid CPF");
+      throw new AppError("Invalid document", 400, errorMessage);
     }
   }
 }

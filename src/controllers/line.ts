@@ -1,24 +1,19 @@
 import { Request, Response } from "express";
-import { AttendPatientInLineBody, FinishAttendment, GetInLineBody } from "../@types/line.types";
+import { AttendPatientInLineBody, FinishAttendment } from "../@types/line.types";
 
 export async function getInLine(req:Request, res:Response) {
   const { ctx } = req;
 
   const { id: lineId } = req.params;
   ctx.services.validateService.checkFieldsFormat({ lineId });
-  /**
-   *  When apply authentication feature the user will be in the context
-   *  const user = ctx.signature!.user;
-  */
 
-  // For now this part will be hardcoded from the front mobile
-  const { patientId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["patientId"]);
+  const currentPatient = ctx.signature!.patient;
 
-  const patient = await ctx.db.patientRepository.findById(patientId);
+  const patient = await ctx.db.patientRepository.findById(currentPatient.id);
 
   const line = await ctx.db.lineRepository.findLineById(lineId, [true]);
 
-  await ctx.services.lineService.checkIfPatientAlreadyInLine(ctx, lineId, patientId);
+  await ctx.services.lineService.checkIfPatientAlreadyInLine(ctx, lineId, currentPatient.id);
 
   const linePatient = await ctx.services.lineService.insertInLine(ctx, line, patient);
 
@@ -69,15 +64,9 @@ export async function leaveLine(req:Request, res:Response) {
   const { ctx } = req;
   const { id: lineId } = req.params;
   ctx.services.validateService.checkFieldsFormat({ lineId });
-  /**
-   *  When apply authentication feature the user will be in the context
-   *  const user = ctx.signature!.user;
-  */
+  const currentPatient = ctx.signature!.patient;
 
-  // For now this part will be hardcoded from the front mobile
-  const { patientId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["patientId"]);
-
-  const patientInLine = await ctx.services.lineService.checkIfPatientIsInLine(ctx, lineId, patientId);
+  const patientInLine = await ctx.services.lineService.checkIfPatientIsInLine(ctx, lineId, currentPatient.id);
   await ctx.services.lineService.deletePatient(ctx, patientInLine);
 
   return res.status(204).json();

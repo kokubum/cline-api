@@ -104,7 +104,7 @@ export class LineService {
     return {
       linePatientId: linePatient.id,
       patientId: linePatient.patient.id,
-      patientName: linePatient.patient.name
+      patientName: linePatient.patient.firstName
     };
   }
 }

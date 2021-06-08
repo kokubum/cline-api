@@ -1,4 +1,5 @@
 import { v1 as uuidV1, v4 as uuidV4 } from "uuid";
+import { generate as generateCpf } from "@fnando/cpf";
 import { SignUpBody } from "../../../src/@types/auth.types";
 import { ValidateService } from "../../../src/services";
 import { generateMockLoginBody, generateMockSignUpBody } from "../../__mocks__/auth";
@@ -102,6 +103,16 @@ describe("Validate Service", () => {
 
     it("Should throw an error if the name has more than one word", () => {
       expect(() => validateService.nameFormat("First Last")).toThrow("Some misformatted fields");
+    });
+  });
+
+  describe("Document Format", () => {
+    it("Should not throw an error if the document is a valid CPF", () => {
+      expect(() => validateService.documentFormat(generateCpf())).not.toThrow();
+    });
+
+    it("Should throw an error if the document isn't valid", () => {
+      expect(() => validateService.documentFormat("Invalid CPF")).toThrow("Invalid document");
     });
   });
 

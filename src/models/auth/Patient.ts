@@ -6,7 +6,7 @@ export class Patient {
   id!:string;
 
   @Column()
-  name!:string;
+  firstName!:string;
 
   @Column({
     unique: true
@@ -17,6 +17,17 @@ export class Patient {
     unique: true
   })
   email!:string;
+
+  @Column()
+  lastName!: string;
+
+  @Column()
+  password!: string;
+
+  @Column({
+    default: false,
+  })
+  active!: boolean;
 
   @Column({
     type: "character varying",

@@ -4,8 +4,11 @@ import { Patient } from "../../src/models";
 
 export function generateMockPatient({
   id = faker.datatype.uuid(),
-  name = faker.name.title(),
+  firstName = faker.name.findName(),
+  lastName = faker.name.lastName(),
   email = faker.internet.email(),
+  active = true,
+  password = faker.internet.password(),
   document = generateCpf(),
   planNumber = faker.datatype.number(10000).toString(),
   createdAt = faker.date.past(),
@@ -14,9 +17,12 @@ export function generateMockPatient({
 }):Patient {
   return {
     id,
-    name,
+    firstName,
+    lastName,
+    password,
     email,
     document,
+    active,
     planNumber,
     createdAt,
     updatedAt

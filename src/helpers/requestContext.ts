@@ -1,21 +1,12 @@
 import { Connection, getConnection } from "typeorm";
 import { SessionInfo } from "../@types/auth.types";
-import { UserRepository, ClinicRepository, DoctorRepository, LineRepository, SessionRepository, TokenRepository } from "../repositories";
-import { AttendingDayRepository } from "../repositories/health/AttendingDayRepository";
-import { ClinicDoctorRepository } from "../repositories/health/ClinicDoctorRepository";
-import { LinePatientRepository } from "../repositories/health/LinePatientRepository";
-import { PatientRepository } from "../repositories/health/PatientRepository";
-import { EmailService, ValidateService, ClinicService } from "../services";
-import { ClinicDoctorService } from "../services/ClinicDoctorService";
-import { DoctorService } from "../services/DoctorService";
-import { LinePatientService } from "../services/LinePatientService";
-import { LineService } from "../services/LineService";
+import { AttendingDayRepository, ClinicDoctorRepository, ClinicRepository, DoctorRepository, LinePatientRepository, LineRepository, PatientRepository, SessionRepository, TokenRepository } from "../repositories";
+
+import { EmailService, ValidateService, ClinicService, ClinicDoctorService, DoctorService, LineService, LinePatientService } from "../services";
 
 export interface Context {
-  [x: string]: any;
   db: {
     connection: Connection;
-    userRepository: UserRepository;
     sessionRepository: SessionRepository;
     tokenRepository: TokenRepository;
     clinicRepository: ClinicRepository;
@@ -54,7 +45,6 @@ export class RequestContext {
     return {
       db: {
         connection,
-        userRepository: connection.getCustomRepository(UserRepository),
         sessionRepository: connection.getCustomRepository(SessionRepository),
         tokenRepository: connection.getCustomRepository(TokenRepository),
         clinicRepository: connection.getCustomRepository(ClinicRepository),

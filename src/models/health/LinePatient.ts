@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { format } from "date-fns";
 import { Check, Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Line, Patient } from ".";
+import { Line } from ".";
+import { Patient } from "..";
 
 // eslint-disable-next-line no-shadow
 export enum Status{

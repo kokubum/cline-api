@@ -1,15 +1,8 @@
 import { Connection, DeleteResult, getConnection, ObjectType } from "typeorm";
 import { Context } from "../src/helpers/requestContext";
-import { ClinicRepository, DoctorRepository, LineRepository, SessionRepository, TokenRepository, UserRepository } from "../src/repositories";
-import { AttendingDayRepository } from "../src/repositories/health/AttendingDayRepository";
-import { ClinicDoctorRepository } from "../src/repositories/health/ClinicDoctorRepository";
-import { LinePatientRepository } from "../src/repositories/health/LinePatientRepository";
-import { PatientRepository } from "../src/repositories/health/PatientRepository";
-import { ClinicService, EmailService, ValidateService } from "../src/services";
-import { ClinicDoctorService } from "../src/services/ClinicDoctorService";
-import { DoctorService } from "../src/services/DoctorService";
-import { LinePatientService } from "../src/services/LinePatientService";
-import { LineService } from "../src/services/LineService";
+import { AttendingDayRepository, ClinicDoctorRepository, ClinicRepository, DoctorRepository, LinePatientRepository, LineRepository, PatientRepository, SessionRepository, TokenRepository } from "../src/repositories";
+
+import { ClinicDoctorService, ClinicService, DoctorService, EmailService, LinePatientService, LineService, ValidateService } from "../src/services";
 
 const constantEntities = ["WeekDay"];
 
@@ -33,7 +26,6 @@ export function generateTestContext():Context {
   return {
     db: {
       connection,
-      userRepository: connection.getCustomRepository(UserRepository),
       sessionRepository: connection.getCustomRepository(SessionRepository),
       tokenRepository: connection.getCustomRepository(TokenRepository),
       clinicRepository: connection.getCustomRepository(ClinicRepository),

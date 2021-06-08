@@ -56,7 +56,7 @@ export class ClinicDoctorService {
     const patientsInLine = waitingPatients.map<PatientInLineInfo>(linePatient => ({
       id: linePatient.patient.id,
       waitingTime: linePatient.waitingTime,
-      name: linePatient.patient.name,
+      name: linePatient.patient.firstName,
       position: linePatient.position
     })).sort(cmpLinePatients);
 

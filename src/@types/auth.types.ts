@@ -1,4 +1,4 @@
-import { User } from "../models";
+import { Patient } from "../models";
 
 export interface ReqFields {
   [field: string]: any;
@@ -22,13 +22,18 @@ export interface SignUpBody {
   firstName: string;
   lastName: string;
   password: string;
+  document:string;
   confirmPassword: string;
   email: string;
 }
 
+export interface SessionPatient extends Omit<Patient,"password">{
+  password?:string;
+}
+
 export interface SessionInfo {
   sessionId: string;
-  user: User;
+  patient: SessionPatient;
 }
 
 

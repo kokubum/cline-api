@@ -104,14 +104,14 @@ describe("Middlewares", () => {
       expect(body.message).toBe("This Session is no longer active");
     });
 
-    it("Should throw an error if the user no longer exists", async () => {
-      await ctx.db.userRepository.delete({});
+    it("Should throw an error if the patient no longer exists", async () => {
+      await ctx.db.patientRepository.delete({});
 
       const { body, status } = await request(app).get(logoutUrl).set("Authorization", `Bearer ${token}`);
 
       expect(status).toBe(404);
       expect(body.status).toBe("fail");
-      expect(body.message).toBe("This user no longer exists");
+      expect(body.message).toBe("Patient not found");
     });
   });
 });

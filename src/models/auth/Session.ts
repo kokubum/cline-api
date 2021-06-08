@@ -6,7 +6,7 @@ export class Session {
   id!: string;
 
   @Column({ type: "uuid" })
-  userId!: string;
+  patientId!: string;
 
   @Column({ type: "text" })
   token!: string;

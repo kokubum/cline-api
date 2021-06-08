@@ -51,7 +51,7 @@ describe("Line Service", () => {
       const formattedLinePatient = LineService.formatCalledPatient(mockLinePatient);
       expect(formattedLinePatient).toEqual({
         patientId: mockLinePatient.patient.id,
-        patientName: mockLinePatient.patient.name,
+        patientName: mockLinePatient.patient.firstName,
         linePatientId: mockLinePatient.id
       });
     });

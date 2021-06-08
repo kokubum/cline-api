@@ -1,15 +1,17 @@
 import request from "supertest";
 import { validate as uuidValidate, v4 as uuidV4 } from "uuid";
+import { SignUpBody } from "../../src/@types/auth.types";
 
 import app from "../../src/app";
+
 import { Context, RequestContext } from "../../src/helpers/requestContext";
 import { Clinic, ClinicDoctor, Doctor, Line, Patient, Status } from "../../src/models";
 import { ClinicDoctorService } from "../../src/services/ClinicDoctorService";
 import { clearTablesContent } from "../helper";
+import { generateMockSignUpBody } from "../__mocks__/auth";
 import { generateMockClinic } from "../__mocks__/clinic";
 import { generateMockDoctor } from "../__mocks__/doctor";
 import { generateMockLine } from "../__mocks__/line";
-import { generateMockPatient } from "../__mocks__/patient";
 
 let ctx:Context;
 let enterLineUrl:string;
@@ -17,12 +19,16 @@ let attendPatientUrl:string;
 let finishAttendmentUrl:string;
 let leaveLineUrl:string;
 let activateLineUrl:string;
+let signUpUrl: string;
+let loginUrl: string;
 
 let createdClinic:Clinic;
 let createdDoctor:Doctor;
 let createdClinicDoctor:ClinicDoctor;
 let createdLine:Line;
 let createdPatient:Patient;
+let bearerToken:string;
+let mockSignupBody:SignUpBody;
 
 describe("Line", () => {
   beforeAll(() => {
@@ -32,6 +38,9 @@ describe("Line", () => {
     finishAttendmentUrl = "/api/v1/lines/<id>/finishAttendment";
     leaveLineUrl = "/api/v1/lines/<id>/leave";
     activateLineUrl = "/api/v1/lines/<id>/activate";
+
+    signUpUrl = "/api/v1/auth/signup";
+    loginUrl = "/api/v1/auth/login";
   });
   beforeEach(async () => {
     await clearTablesContent();
@@ -42,28 +51,25 @@ describe("Line", () => {
       doctor: createdDoctor
     });
     createdLine = await ctx.db.lineRepository.save(generateMockLine({ clinicDoctor: createdClinicDoctor }));
-    createdPatient = await ctx.db.patientRepository.save(generateMockPatient({}));
+    mockSignupBody = generateMockSignUpBody({});
+    await request(app).post(signUpUrl).send(mockSignupBody);
+    await ctx.db.patientRepository.update({ email: mockSignupBody.email }, { active: true });
+    const { body } = await request(app).post(loginUrl).send({ email: mockSignupBody.email, password: mockSignupBody.password });
+    bearerToken = body.data.token;
+    createdPatient = await ctx.db.patientRepository.findByEmail(mockSignupBody.email) as Patient;
   });
 
   describe("Enter In Line", () => {
     it("Should add a patient in the line and return the linePatient id", async () => {
-      const { status, body } = await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      const { status, body } = await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
 
       expect(status).toBe(201);
       expect(body.status).toBe("success");
       expect(uuidValidate(body.data.id)).toBeTruthy();
     });
 
-    it("Should throw an error if doesn't exist patient with the id that was passed", async () => {
-      const { status, body } = await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: uuidV4() });
-
-      expect(status).toBe(404);
-      expect(body.status).toBe("fail");
-      expect(body.message).toBe("Patient not found");
-    });
-
     it("Should throw an error if doesn't exist line with the id that was passed", async () => {
-      const { status, body } = await request(app).post(enterLineUrl.replace("<id>", uuidV4())).send({ patientId: createdPatient.id });
+      const { status, body } = await request(app).get(enterLineUrl.replace("<id>", uuidV4())).set("Authorization", `Bearer ${bearerToken}`);
 
       expect(status).toBe(404);
       expect(body.status).toBe("fail");
@@ -71,8 +77,8 @@ describe("Line", () => {
     });
 
     it("Should throw an error if try to enter in line more than one time", async () => {
-      await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
-      const { status, body } = await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
+      const { status, body } = await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
 
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
@@ -82,7 +88,7 @@ describe("Line", () => {
 
   describe("Attend Patient In Line", () => {
     it("Should attend a patient that is in line, in the position 1", async () => {
-      await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
       const { status, body } = await request(app).post(attendPatientUrl.replace("<id>", createdLine.id)).send({ doctorId: createdDoctor.id });
       const calledPatient = await ctx.db.linePatientRepository.findOne(body.data.patientCalled.linePatientId);
       expect(status).toBe(200);
@@ -92,7 +98,7 @@ describe("Line", () => {
     });
 
     it("Should throw an error if there is a patient in attendment", async () => {
-      await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
       await request(app).post(attendPatientUrl.replace("<id>", createdLine.id)).send({ doctorId: createdDoctor.id });
       const { status, body } = await request(app).post(attendPatientUrl.replace("<id>", createdLine.id)).send({ doctorId: createdDoctor.id });
       expect(status).toBe(400);
@@ -119,7 +125,7 @@ describe("Line", () => {
   describe("Finish Attendment", () => {
     let linePatientId:string;
     beforeEach(async () => {
-      await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
       const { body: attendBody } = await request(app).post(attendPatientUrl.replace("<id>", createdLine.id)).send({ doctorId: createdDoctor.id });
       linePatientId = attendBody.data.patientCalled.linePatientId;
     });
@@ -144,11 +150,11 @@ describe("Line", () => {
 
   describe("Leave Line", () => {
     beforeEach(async () => {
-      await request(app).post(enterLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      await request(app).get(enterLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
     });
 
     it("Should remove the patient from the line", async () => {
-      const { status } = await request(app).post(leaveLineUrl.replace("<id>", createdLine.id)).send({ patientId: createdPatient.id });
+      const { status } = await request(app).get(leaveLineUrl.replace("<id>", createdLine.id)).set("Authorization", `Bearer ${bearerToken}`);
 
       const patientsInLine = await ctx.db.linePatientRepository.find({ where: { line: { id: createdLine.id }, status: Status.ONHOLD } });
       expect(status).toBe(204);
@@ -156,7 +162,7 @@ describe("Line", () => {
     });
 
     it("Should throw an error if try to leave the line with an invalid patientId", async () => {
-      const { status, body } = await request(app).post(leaveLineUrl.replace("<id>", createdLine.id)).send({ patientId: uuidV4() });
+      const { status, body } = await request(app).get(leaveLineUrl.replace("<id>", uuidV4())).set("Authorization", `Bearer ${bearerToken}`);
 
       expect(status).toBe(400);
       expect(body.status).toBe("fail");
@@ -173,7 +179,6 @@ describe("Line", () => {
       });
       await ctx.db.lineRepository.update({ id: createdLine.id }, { active: false });
       const { status, body } = await request(app).get(activateLineUrl.replace("<id>", createdLine.id));
-      console.log(body);
       expect(status).toBe(200);
       expect(body.status).toBe("success");
       expect(body.data).toBeNull();

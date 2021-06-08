@@ -9,7 +9,7 @@ export class Token {
   tokenCode!: string;
 
   @Column({ type: "uuid" })
-  userId!: string;
+  patientId!: string;
 
   @Column({ type: "timestamp" })
   expiresAt!: Date;

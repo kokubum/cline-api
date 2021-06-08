@@ -1,29 +1,31 @@
 import { Request, Response } from "express";
 import * as bcrypt from "bcrypt";
 import { EmailBody, LoginBody, RecoverPasswordBody, SignUpBody } from "../@types/auth.types";
+
 import { AppError } from "../helpers/appError";
 import { checkTokenExpiration } from "../helpers/auth";
+import { Session } from "../models";
 
 export async function signup(req: Request, res: Response) {
   const { ctx } = req;
 
-  const requiredFields = ["firstName", "lastName", "password", "confirmPassword", "email"];
+  const requiredFields = ["firstName", "lastName", "password", "confirmPassword", "email", "document"];
   const validBody = ctx.services.validateService.requestBody<SignUpBody>(req.body, requiredFields);
 
   ctx.services.validateService.confirmPasswordEquality(validBody.confirmPassword, validBody.password);
 
-  await ctx.db.userRepository.checkForRegisteredUser(validBody.email);
+  await ctx.db.patientRepository.checkForRegisteredPatient(validBody.email);
 
-  const user = await ctx.db.userRepository.registerUser(validBody);
+  const patient = await ctx.db.patientRepository.registerPatient(validBody);
 
-  const token = await ctx.db.tokenRepository.saveToken(user.id);
+  const token = await ctx.db.tokenRepository.saveToken(patient.id);
 
-  ctx.services.emailService.sendEmailLink(user.email, token.tokenCode, user.firstName, "activation");
+  ctx.services.emailService.sendEmailLink(patient.email, token.tokenCode, patient.firstName, "activation");
 
   return res.status(201).json({
     status: "success",
     data: {
-      id: user.id,
+      id: patient.id,
     },
   });
 }
@@ -35,13 +37,13 @@ export async function login(req: Request, res: Response) {
 
   const validBody = ctx.services.validateService.requestBody<LoginBody>(req.body, requiredFields);
 
-  const user = await ctx.db.userRepository.checkLoginCredentials(validBody.email, validBody.password);
+  const patient = await ctx.db.patientRepository.checkLoginCredentials(validBody.email, validBody.password);
 
-  if (!user.active) {
+  if (!patient.active) {
     throw new AppError("This account is not activated yet", 403);
   }
 
-  const session = await ctx.db.sessionRepository.createSession(user.id);
+  const session = await ctx.db.sessionRepository.createSession(patient.id);
 
   return res.status(200).json({
     status: "success",
@@ -59,10 +61,10 @@ export async function activateAccount(req: Request, res: Response) {
 
   checkTokenExpiration(token);
 
-  const user = await ctx.db.userRepository.findById(token.userId);
+  const patient = await ctx.db.patientRepository.findById(token.patientId);
 
-  user.active = true;
-  await ctx.db.userRepository.save(user);
+  patient.active = true;
+  await ctx.db.patientRepository.save(patient);
 
   await ctx.db.tokenRepository.remove(token);
 
@@ -76,17 +78,17 @@ export async function sendActivationLink(req: Request, res: Response) {
   const { ctx } = req;
   const validBody = ctx.services.validateService.requestBody<EmailBody>(req.body, ["email"]);
 
-  const user = await ctx.db.userRepository.checkForUnregisteredUser(validBody.email);
+  const patient = await ctx.db.patientRepository.checkForUnregisteredPatient(validBody.email);
 
-  if (user.active) {
+  if (patient.active) {
     throw new AppError("This email is already active", 400);
   }
 
-  await ctx.db.tokenRepository.removeExistingTokenIfExists(user.id);
+  await ctx.db.tokenRepository.removeExistingTokenIfExists(patient.id);
 
-  const token = await ctx.db.tokenRepository.saveToken(user.id);
+  const token = await ctx.db.tokenRepository.saveToken(patient.id);
 
-  ctx.services.emailService.sendEmailLink(user.email, token.tokenCode, user.firstName, "activation");
+  ctx.services.emailService.sendEmailLink(patient.email, token.tokenCode, patient.firstName, "activation");
 
   return res.status(200).json({
     status: "success",
@@ -99,14 +101,14 @@ export async function sendRecoverPasswordLink(req: Request, res: Response) {
 
   const validBody = ctx.services.validateService.requestBody<EmailBody>(req.body, ["email"]);
 
-  const user = await ctx.db.userRepository.findByEmail(validBody.email);
+  const patient = await ctx.db.patientRepository.findByEmail(validBody.email);
 
-  if (user && user.active) {
-    await ctx.db.tokenRepository.removeExistingTokenIfExists(user.id);
+  if (patient && patient.active) {
+    await ctx.db.tokenRepository.removeExistingTokenIfExists(patient.id);
 
-    const token = await ctx.db.tokenRepository.saveToken(user.id);
+    const token = await ctx.db.tokenRepository.saveToken(patient.id);
 
-    ctx.services.emailService.sendEmailLink(user.email, token.tokenCode, user.firstName, "recovery");
+    ctx.services.emailService.sendEmailLink(patient.email, token.tokenCode, patient.firstName, "recovery");
   }
 
   return res.status(200).json({
@@ -122,7 +124,7 @@ export async function verifyRecoverPasswordLink(req: Request, res: Response) {
   const token = await ctx.db.tokenRepository.findTokenByCode(tokenCode);
   checkTokenExpiration(token);
 
-  await ctx.db.userRepository.findById(token.userId);
+  await ctx.db.patientRepository.findById(token.patientId);
 
   return res.status(200).json({
     status: "success",
@@ -137,14 +139,14 @@ export async function recoverPassword(req: Request, res: Response) {
   const token = await ctx.db.tokenRepository.findTokenByCode(tokenCode);
 
   checkTokenExpiration(token);
-  const user = await ctx.db.userRepository.findById(token.userId);
+  const user = await ctx.db.patientRepository.findById(token.patientId);
 
   const requiredFields = ["password", "confirmPassword"];
   const validBody = ctx.services.validateService.requestBody<RecoverPasswordBody>(req.body, requiredFields);
   ctx.services.validateService.confirmPasswordEquality(validBody.confirmPassword, validBody.password);
 
   user.password = await bcrypt.hash(validBody.password, 12);
-  await ctx.db.userRepository.save(user);
+  await ctx.db.patientRepository.save(user);
   await ctx.db.tokenRepository.remove(token);
 
   return res.status(200).json({
@@ -156,9 +158,10 @@ export async function recoverPassword(req: Request, res: Response) {
 export async function logout(req: Request, res: Response) {
   const { ctx } = req;
 
-  const session = await ctx.db.sessionRepository.getValidSession(ctx.signature!.sessionId);
+  const session = await ctx.db.sessionRepository.getValidSession(ctx.signature!.sessionId) as Session;
 
-  session!.active = false;
+  session.active = false;
+  await ctx.db.sessionRepository.save(session);
 
   return res.status(200).json({
     status: "success",

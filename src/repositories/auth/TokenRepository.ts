@@ -5,19 +5,19 @@ import { Token } from "../../models";
 
 @EntityRepository(Token)
 export class TokenRepository extends Repository<Token> {
-  async saveToken(userId: string): Promise<Token> {
+  async saveToken(patientId: string): Promise<Token> {
     const tokenCode = generateTokenCode();
 
     return this.save({
       tokenCode,
-      userId,
+      patientId,
       expiresAt: generateLinkExpireTime(),
     });
   }
 
-  async removeExistingTokenIfExists(userId: string): Promise<void> {
+  async removeExistingTokenIfExists(patientId: string): Promise<void> {
     const existingTokenCode = await this.findOne({
-      where: { userId },
+      where: { patientId },
     });
 
     if (existingTokenCode) {
