@@ -76,7 +76,7 @@ describe("ClinicDoctor Service", () => {
     });
   });
 
-  describe("Get Formatted Doctor Line From Clinic", async () => {
+  describe("Get Formatted Doctor Line From Clinic", () => {
     it("Should get the formatted doctor line of the clinic from the db repository", async () => {
       const clinic = generateMockClinic({});
       const doctor = generateMockDoctor({});
