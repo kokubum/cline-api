@@ -28,8 +28,8 @@ beforeAll(async () => {
       migrationsRun: true,
       logging: false,
     });
-  } catch (error) {
-    process.stderr.write(`${error}\n${error.stack || ""}\n`);
+  } catch (error: any) {
+    process.stderr.write(`${error}\n${(error).stack || ""}\n`);
 
     process.exit(1);
   }

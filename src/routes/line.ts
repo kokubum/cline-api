@@ -13,7 +13,7 @@ class LineRouter {
   private registerControllers():void {
     this.router.post("/:id/enterInLine", catchAsync(getInLine));
     this.router.get("/:id/activateLine", catchAsync(activateLine));
-    this.router.post("/:id/attendPatient", catchAsync(attendPatientFromLine));
+    this.router.post("/:id/attendStudent", catchAsync(attendPatientFromLine));
     this.router.post("/:id/finishAttendment", catchAsync(finishAttendment));
   }
 }

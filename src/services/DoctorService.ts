@@ -12,8 +12,8 @@ export class DoctorService {
     const clinicList = DoctorService.formatClinicList(doctor.clinicDoctors);
 
     return {
-      doctor: doctorInfo,
-      clinics: clinicList
+      coordinator: doctorInfo,
+      universities: clinicList
     };
   }
 

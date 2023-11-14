@@ -1,5 +1,5 @@
-import { createConnection, getConnectionOptions } from "typeorm";
 import "reflect-metadata";
+import { createConnection, getConnectionOptions } from "typeorm";
 import app from "./app";
 
 process.env.TZ = "UTC";

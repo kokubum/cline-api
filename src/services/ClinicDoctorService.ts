@@ -61,7 +61,7 @@ export class ClinicDoctorService {
     })).sort(cmpLinePatients);
 
     return {
-      doctor: {
+      coordinator: {
         id: clinicDoctor.doctor.id,
         name: clinicDoctor.doctor.name,
         ...attendingInfo,
@@ -70,7 +70,7 @@ export class ClinicDoctorService {
         id: clinicDoctor.line.id,
         active: clinicDoctor.line.active,
         length: waitingPatients.length,
-        patients: patientsInLine
+        students: patientsInLine
       }
     };
   }

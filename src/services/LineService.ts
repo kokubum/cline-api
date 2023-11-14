@@ -101,9 +101,9 @@ export class LineService {
 
   static formatCalledPatient(linePatient:LinePatient):CalledPatient {
     return {
-      linePatientId: linePatient.id,
-      patientId: linePatient.patient.id,
-      patientName: linePatient.patient.name
+      lineStudentId: linePatient.id,
+      studentId: linePatient.patient.id,
+      studentName: linePatient.patient.name
     };
   }
 }

@@ -1,13 +1,13 @@
 import { Router } from "express";
 import {
-  signup,
-  login,
   activateAccount,
+  login,
+  logout,
+  recoverPassword,
   sendActivationLink,
   sendRecoverPasswordLink,
+  signup,
   verifyRecoverPasswordLink,
-  recoverPassword,
-  logout,
 } from "../controllers";
 import { catchAsync } from "../helpers/catchAsync";
 import { protect } from "../middlewares/auth";

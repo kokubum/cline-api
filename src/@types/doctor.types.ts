@@ -20,12 +20,12 @@ export interface DoctorInfo{
 }
 
 export interface DoctorWithClinics {
-  doctor:DoctorInfo;
-  clinics:SimpleClinic[];
+  coordinator:DoctorInfo;
+  universities:SimpleClinic[];
 }
 
 
 export interface DoctorLine{
-  doctor:BaseDoctor,
+  coordinator:BaseDoctor,
   line:BasicLineInfo
 }

@@ -6,13 +6,13 @@ import { Clinic, ClinicDoctor, Doctor, LinePatient } from "../../../src/models";
 import { ClinicDoctorService } from "../../../src/services/ClinicDoctorService";
 import { LinePatientService } from "../../../src/services/LinePatientService";
 import { LineService } from "../../../src/services/LineService";
-import { generateTestContext } from "../../helper";
 import { generateMockClinic } from "../../__mocks__/clinic";
 import { generateMockClinicDoctor } from "../../__mocks__/clinicDoctors";
 import { generateMockDoctor } from "../../__mocks__/doctor";
 import { generateMockLine } from "../../__mocks__/line";
 import { generateMockLinePatient, generateMockLinePatientList } from "../../__mocks__/linePatient";
 import { generateMockPatient } from "../../__mocks__/patient";
+import { generateTestContext } from "../../helper";
 
 let lineService:LineService;
 let isAttendingTodaySpy:jest.SpyInstance<AttendingInfo, [clinicDoctor:ClinicDoctor]>;
@@ -50,9 +50,9 @@ describe("Line Service", () => {
 
       const formattedLinePatient = LineService.formatCalledPatient(mockLinePatient);
       expect(formattedLinePatient).toEqual({
-        patientId: mockLinePatient.patient.id,
-        patientName: mockLinePatient.patient.name,
-        linePatientId: mockLinePatient.id
+        studentId: mockLinePatient.patient.id,
+        studentName: mockLinePatient.patient.name,
+        lineStudentId: mockLinePatient.id
       });
     });
   });
@@ -75,7 +75,7 @@ describe("Line Service", () => {
 
       const returnedMockSave = {
         line: mockLine,
-        patient: mockPatient,
+        student: mockPatient,
         position: total + 1,
         waitingTime: waitingTimeBase
       };

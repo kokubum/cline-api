@@ -10,7 +10,7 @@ export async function getFilteredClinics(req:Request, res:Response) {
   return res.status(200).send({
     status: "success",
     data: {
-      clinics,
+      universities: clinics,
       length: clinics.length
     }
   });
@@ -42,7 +42,7 @@ export async function getFilteredDoctorsFromClinic(req:Request, res:Response) {
   return res.status(200).send({
     status: "success",
     data: {
-      doctors
+      coordinators: doctors
     }
   });
 }

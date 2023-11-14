@@ -5,13 +5,13 @@ import { Context } from "../../../src/helpers/requestContext";
 
 import { ClinicDoctorService } from "../../../src/services/ClinicDoctorService";
 
-import { generateTestContext } from "../../helper";
 import { generateMockAttendingDays } from "../../__mocks__/attendingDay";
 import { generateMockClinic } from "../../__mocks__/clinic";
 import { generateMockClinicDoctor, generateMockClinicDoctorList } from "../../__mocks__/clinicDoctors";
 import { generateMockDoctor } from "../../__mocks__/doctor";
 import { generateMockLine } from "../../__mocks__/line";
 import { generateMockLinePatientList } from "../../__mocks__/linePatient";
+import { generateTestContext } from "../../helper";
 
 let ctx:Context;
 let clinicDoctorService:ClinicDoctorService;
@@ -72,7 +72,7 @@ describe("ClinicDoctor Service", () => {
 
       const formattedDoctorLine = ClinicDoctorService.formatDoctorLine(mockClinicDoctor);
       expect(formattedDoctorLine.line.length).toBe(5);
-      expect(formattedDoctorLine.doctor.id).toBe(doctor.id);
+      expect(formattedDoctorLine.coordinator.id).toBe(doctor.id);
     });
   });
 
@@ -85,7 +85,7 @@ describe("ClinicDoctor Service", () => {
       const randomId = faker.datatype.uuid();
       const formattedDoctorLine = await clinicDoctorService.getFormattedDoctorLineFromClinic(ctx, randomId, randomId);
 
-      expect(formattedDoctorLine.doctor.id).toBe(doctor.id);
+      expect(formattedDoctorLine.coordinator.id).toBe(doctor.id);
       expect(formattedDoctorLine.line.id).toBe(mockClinicDoctor.line.id);
     });
   });

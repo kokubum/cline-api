@@ -1,19 +1,30 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class clinicsAndDoctorPopulate1621955842930 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         // Clinic seed
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica CSI', '(71) 3181-7666', 'R. Teixeira Barros, 27')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica CAM Itaigara', '(71) 3352-8800', 'Ed. Prof. Carlos Aristides Maltez, Av. Antônio Carlos Magalhães, 237')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Imagem Médica', '(71) 3359-8600', 'Av. Antônio Carlos Magalhães, 585')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica CDI', '(71) 3797-8500', 'Av. ACM, 1034')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Santa Helena', '(71) 3622-7555', 'Av. Tancredo Neves, 2227')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Humanizare', '(71) 99127-7010', 'R. Frederico Simões, 85')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica FIPES', '(71) 3015-2005', 'Av. Tancredo Neves, 1632')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Apollo', '(71) 3341-0112', 'Av. Tancredo Neves, 2539')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Facilita', '(71) 2132-6140', 'Av. Antônio Carlos Magalhães, 3591')`);
-        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica OralFace', '(71) 3113-2390', 'Av. Tancredo Neves, 1610')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal do Rio de Janeiro', '(21) 1234-5678', 'Av. Pedro Calmon, 550')`); 
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal de São Paulo', '(11) 8765-4321', 'R. Sena Madureira, 1500')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal de Minas Gerais', '(31) 9876-5432', 'Av. Antônio Carlos, 6627')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal do Ceará', '(85) 2345-6789', 'Av. da Universidade, 2853')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal do Rio Grande do Sul', '(51) 3456-7890', 'Av. Paulo Gama, 110')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal de Pernambuco', '(81) 5678-9012', 'Cidade Universitária, s/n')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal de Viçosa', '(31) 2345-6789', 'Av. Peter Henry Rolfs, s/n')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal do Paraná', '(41) 7890-1234', 'Rua XV de Novembro, 1299')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal do Amazonas', '(92) 3456-7890', 'Av. Rodrigo Otávio, 6200')`);
+        await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Universidade Federal de Goiás', '(62) 4567-8901', 'Campus Samambaia, s/n')`);
+
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica CSI', '(71) 3181-7666', 'R. Teixeira Barros, 27')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica CAM Itaigara', '(71) 3352-8800', 'Ed. Prof. Carlos Aristides Maltez, Av. Antônio Carlos Magalhães, 237')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Imagem Médica', '(71) 3359-8600', 'Av. Antônio Carlos Magalhães, 585')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica CDI', '(71) 3797-8500', 'Av. ACM, 1034')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Santa Helena', '(71) 3622-7555', 'Av. Tancredo Neves, 2227')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Humanizare', '(71) 99127-7010', 'R. Frederico Simões, 85')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica FIPES', '(71) 3015-2005', 'Av. Tancredo Neves, 1632')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Apollo', '(71) 3341-0112', 'Av. Tancredo Neves, 2539')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica Facilita', '(71) 2132-6140', 'Av. Antônio Carlos Magalhães, 3591')`);
+        // await queryRunner.query(`INSERT INTO clinics (id, name, phone, address) VALUES (uuid_generate_v4(), 'Clínica OralFace', '(71) 3113-2390', 'Av. Tancredo Neves, 1610')`);
     
         //Doctor seed
         await queryRunner.query(`INSERT INTO doctors (id, name, document, crm, email) VALUES (uuid_generate_v4(), 'Lucas Costa Oliveira', '24899724055', '12345-BA', 'lucascostaoliveira@gmail.com')`);

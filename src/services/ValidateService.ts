@@ -1,8 +1,8 @@
+import { validate as uuidValidate, version as uuidVersion } from "uuid";
 import isEmail from "validator/lib/isEmail";
-import { version as uuidVersion, validate as uuidValidate } from "uuid";
+import { ReqFields } from "../@types/auth.types";
 import { ApiMessage, AppError } from "../helpers/appError";
 import { isString } from "../helpers/utils";
-import { ReqFields } from "../@types/auth.types";
 
 // eslint-disable-next-line no-unused-vars
 type formatFunction = (nameOfField: string, ...options: string[]) => void;
@@ -28,20 +28,20 @@ export class ValidateService {
       lastName: this.nameFormat,
       confirmPassword: this.passwordFormat,
       id: this.validateUUIDV4Format,
-      clinicId: this.validateUUIDV4Format,
-      doctorId: this.validateUUIDV4Format,
+      universityId: this.validateUUIDV4Format,
+      coordinatorId: this.validateUUIDV4Format,
       lineId: this.validateUUIDV4Format,
-      patientId: this.validateUUIDV4Format,
-      linePatientId: this.validateUUIDV4Format,
+      studentId: this.validateUUIDV4Format,
+      lineStudentId: this.validateUUIDV4Format,
     };
 
     this.types = {
       id: "String",
-      clinicId: "String",
-      doctorId: "String",
+      universityId: "String",
+      coordinatorId: "String",
       lineId: "String",
-      patientId: "String",
-      linePatientId: "String",
+      studentId: "String",
+      lineStudentId: "String",
       email: "String",
       password: "String",
       firstName: "String",
@@ -51,7 +51,7 @@ export class ValidateService {
     };
   }
 
-  requestBody<T>(fieldsObj: ReqFields, requiredFields: string[]): T {
+  requestBody<T extends ReqFields>(fieldsObj: ReqFields, requiredFields: string[]): T {
     const formattedFields = this.formatFields(fieldsObj);
     const validBody = this.requiredFields<T>(formattedFields, requiredFields);
 

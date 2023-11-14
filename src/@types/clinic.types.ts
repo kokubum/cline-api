@@ -15,8 +15,8 @@ export interface ClinicInfo{
 }
 
 export interface ClinicWithDoctors{
-  clinic:ClinicInfo;
-  doctors:SimpleDoctor[];
+  university:ClinicInfo;
+  coordinators:SimpleDoctor[];
 }
 
 export interface SearchBody{

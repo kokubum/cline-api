@@ -4,9 +4,9 @@ import { Context } from "../../../src/helpers/requestContext";
 import { ClinicDoctor } from "../../../src/models";
 import { ClinicService } from "../../../src/services";
 import { ClinicDoctorService } from "../../../src/services/ClinicDoctorService";
-import { generateTestContext } from "../../helper";
 import { generateMockClinic } from "../../__mocks__/clinic";
 import { generateMockClinicDoctorList } from "../../__mocks__/clinicDoctors";
+import { generateTestContext } from "../../helper";
 
 let clinicService:ClinicService;
 let ctx:Context;
@@ -91,8 +91,8 @@ describe("Clinic Service", () => {
       const formattedClinicWithDoctors = await clinicService.getFormattedClinicWithDoctors(ctx, faker.datatype.uuid());
 
       expect(formattedClinicWithDoctors).toEqual({
-        clinic: ClinicService.formatClinicInfo(mockClinic),
-        doctors: ClinicService.formatDoctorsList(mockClinic.clinicDoctors)
+        university: ClinicService.formatClinicInfo(mockClinic),
+        coordinators: ClinicService.formatDoctorsList(mockClinic.clinicDoctors)
       });
     });
   });

@@ -12,13 +12,13 @@ export async function getInLine(req:Request, res:Response) {
   */
 
   // For now this part will be hardcoded from the front mobile
-  const { patientId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["patientId"]);
+  const { studentId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["studentId"]);
 
-  const patient = await ctx.db.patientRepository.findById(patientId);
+  const patient = await ctx.db.patientRepository.findById(studentId);
 
   const line = await ctx.db.lineRepository.findLineById(lineId, [true]);
 
-  await ctx.services.lineService.checkIfPatientAlreadyInLine(ctx, lineId, patientId);
+  await ctx.services.lineService.checkIfPatientAlreadyInLine(ctx, lineId, studentId);
 
   const linePatient = await ctx.services.lineService.insertInLine(ctx, line, patient);
 
@@ -35,17 +35,17 @@ export async function attendPatientFromLine(req:Request, res:Response) {
   const { id: lineId } = req.params;
   ctx.services.validateService.checkFieldsFormat({ lineId });
   // In the future this endpoint will have in the ctx.signature the id of the logged doctor to validate with the line id
-  const { doctorId } = ctx.services.validateService.requiredFields<AttendPatientInLineBody>(req.body, ["doctorId"]);
+  const { coordinatorId } = ctx.services.validateService.requiredFields<AttendPatientInLineBody>(req.body, ["coordinatorId"]);
 
   await ctx.db.linePatientRepository.checkPatientInProgress(lineId);
-  const linePatients = await ctx.services.lineService.getValidLineOfPatients(ctx, lineId, doctorId);
+  const linePatients = await ctx.services.lineService.getValidLineOfPatients(ctx, lineId, coordinatorId);
 
   const patientCalled = await ctx.services.lineService.callPatient(ctx, linePatients, lineId);
 
   return res.status(200).send({
     status: "success",
     data: {
-      patientCalled
+      studentCalled: patientCalled
     }
   });
 }
@@ -55,9 +55,9 @@ export async function finishAttendment(req:Request, res:Response) {
   const { id: lineId } = req.params;
   ctx.services.validateService.checkFieldsFormat({ lineId });
   // In the future this endpoint will have in the ctx.signature the id of the logged doctor to validate with the line id
-  const { linePatientId, doctorId } = ctx.services.validateService.requiredFields<FinishAttendment>(req.body, ["linePatientId", "doctorId"]);
+  const { lineStudentId, coordinatorId } = ctx.services.validateService.requiredFields<FinishAttendment>(req.body, ["lineStudentId", "coordinatorId"]);
 
-  await ctx.services.lineService.finishAttendment(ctx, linePatientId, doctorId, lineId);
+  await ctx.services.lineService.finishAttendment(ctx, lineStudentId, coordinatorId, lineId);
 
   return res.status(200).send({
     status: "success",
@@ -75,9 +75,9 @@ export async function leaveLine(req:Request, res:Response) {
   */
 
   // For now this part will be hardcoded from the front mobile
-  const { patientId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["patientId"]);
+  const { studentId } = ctx.services.validateService.requiredFields<GetInLineBody>(req.body, ["studentId"]);
 
-  const patientInLine = await ctx.services.lineService.checkIfPatientIsInLine(ctx, lineId, patientId);
+  const patientInLine = await ctx.services.lineService.checkIfPatientIsInLine(ctx, lineId, studentId);
   await ctx.services.lineService.deletePatient(ctx, patientInLine);
 
   return res.status(204).send({

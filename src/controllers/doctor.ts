@@ -9,7 +9,7 @@ export async function getFilteredDoctors(req:Request, res:Response) {
   return res.status(200).send({
     status: "success",
     data: {
-      doctors,
+      coordinators: doctors,
       length: doctors.length
     }
   });

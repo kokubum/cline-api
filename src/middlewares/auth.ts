@@ -26,10 +26,9 @@ export async function protect(req: Request, _res: Response, next: NextFunction):
   try {
     decodedToken = jwt.verify(token, secretKey) as DecodedJWT;
   } catch (err) {
-    if (err.name === "TokenExpiredError") {
+    if (err instanceof jwt.TokenExpiredError) {
       throw new AppError("Expired Token", 401);
     }
-
     throw new AppError("Token Error", 401);
   }
 

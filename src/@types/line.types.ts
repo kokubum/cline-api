@@ -1,4 +1,3 @@
-import { LinePatient } from "../models";
 
 export interface PatientInLineInfo {
   id:string;
@@ -11,24 +10,24 @@ export interface BasicLineInfo{
   id:string;
   active:boolean;
   length:number;
-  patients:PatientInLineInfo[];
+  students:PatientInLineInfo[];
 }
 
 export interface GetInLineBody {
-  patientId:string;
+  studentId:string;
 }
 
 export interface AttendPatientInLineBody {
-  doctorId:string;
+  coordinatorId:string;
 }
 
 export interface FinishAttendment{
-  linePatientId:string;
-  doctorId:string;
+  lineStudentId:string;
+  coordinatorId:string;
 }
 
 export interface CalledPatient {
-  linePatientId:string;
-  patientId:string;
-  patientName:string;
+  lineStudentId:string;
+  studentId:string;
+  studentName:string;
 }
